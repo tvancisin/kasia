@@ -2,6 +2,7 @@
   import * as d3 from "d3";
   import { onMount, tick } from "svelte";
   import { getCSV, constructNodesAndLinks } from "./utils";
+  import Timeline from "./lib/Timeline.svelte";
 
   // TODO
   // filter by number of connections
@@ -14,14 +15,21 @@
     mend,
     actors,
     svgEl,
-    gEl;
-  let width,
+    gEl,
+    width,
     height = 600;
+
+  let margin = { top: 20, right: 80, bottom: 20, left: 80 };
+
   let renderedLinks = [];
   // will populate this with DOM elements keyed by node ID
   let nodeElements = {};
   // will hold the <circle> DOM elements
   let circleRefs = [];
+
+  let years = [],
+    allYearMonthPairs = [],
+    russia_present = [];
 
   // simulation function
   async function setupSimulation(selected) {
@@ -104,12 +112,20 @@
   onMount(async () => {
     // load the data
     [mend, actors] = await getCSV(["./mend.csv", "./actors.csv"]);
+    let clean_mend = mend.filter((d) => d.med_event_ID != "");
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
-    let russia_present = mend.filter((item) =>
+    russia_present = clean_mend.filter((item) =>
       item.third_party_id_GLOPAD?.split(";").includes(russia),
     );
+
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
     let selected = russia_conflicts[5][1];
+
+    // timeline
+    years = [...new Set(clean_mend.map((d) => d.Year))]; // Extract unique years
+    allYearMonthPairs = years.flatMap((year) =>
+      Array.from({ length: 12 }, (_, i) => `${year}-${i + 1}`),
+    );
 
     // trigger simulation
     setupSimulation(selected);
@@ -153,40 +169,42 @@
 </script>
 
 <main bind:clientHeight={height} bind:clientWidth={width}>
-  <div id="button_container">
-    {#each russia_conflicts as r}
-      <button on:click={() => change_country(r)}>{r[0]}</button>
-    {/each}
-  </div>
-  <svg bind:this={svgEl} {width} {height}>
-    <g bind:this={gEl}>
-      {#each renderedLinks as l (l.source.id + "-" + l.target.id)}
-        <line
-          stroke-opacity={opacityScale(l.value)}
-          stroke-width={widthScale(l.value)}
-          x1={l.source.x}
-          y1={l.source.y}
-          x2={l.target.x}
-          y2={l.target.y}
-          stroke="white"
-        />
+  <div class="blog">ewofijweoijfoweijfo</div>
+  <div class="visualization">
+    <div id="button_container">
+      {#each russia_conflicts as r}
+        <button on:click={() => change_country(r)}>{r[0]}</button>
       {/each}
-
-      {#each nodes as node, i (node.id)}
-        <g>
-          <circle
-            bind:this={circleRefs[i]}
-            cx={node.x}
-            cy={node.y}
-            r="4"
-            fill="black"
+    </div>
+    <svg bind:this={svgEl} {width} {height}>
+      <g bind:this={gEl}>
+        {#each renderedLinks as l (l.source.id + "-" + l.target.id)}
+          <line
+            stroke-opacity={opacityScale(l.value)}
+            stroke-width={widthScale(l.value)}
+            x1={l.source.x}
+            y1={l.source.y}
+            x2={l.target.x}
+            y2={l.target.y}
             stroke="white"
-            on:mousedown|preventDefault
-          >
-            <title>{node.id}</title>
-          </circle>
+          />
+        {/each}
 
-          <!-- {#if textBBoxes[i]}
+        {#each nodes as node, i (node.id)}
+          <g>
+            <circle
+              bind:this={circleRefs[i]}
+              cx={node.x}
+              cy={node.y}
+              r="4"
+              fill="black"
+              stroke="white"
+              on:mousedown|preventDefault
+            >
+              <title>{node.id}</title>
+            </circle>
+
+            <!-- {#if textBBoxes[i]}
             <rect
               x={node.x - textBBoxes[i].width / 2 - 4}
               y={node.y + 15 - textBBoxes[i].height + 4}
@@ -199,33 +217,43 @@
             />
           {/if} -->
 
-          <text
-            bind:this={textRefs[i]}
-            x={node.x}
-            y={node.y + 15}
-            text-anchor="middle"
-            fill="white"
-            stroke="black"
-            stroke-width="2"
-            paint-order="stroke fill"
-            font-size="12"
-            font-family="Montserrat"
-          >
-            {node.name}
-          </text>
-        </g>
-      {/each}
-    </g>
-  </svg>
+            <text
+              bind:this={textRefs[i]}
+              x={node.x}
+              y={node.y + 15}
+              text-anchor="middle"
+              fill="white"
+              stroke="black"
+              stroke-width="2"
+              paint-order="stroke fill"
+              font-size="12"
+              font-family="Montserrat"
+            >
+              {node.name}
+            </text>
+          </g>
+        {/each}
+      </g>
+    </svg>
+  </div>
+  <div class="blog">ewofijweoijfoweijfo</div>
+  <Timeline {width} {height} {margin} {russia_present} {allYearMonthPairs} />
 </main>
 
 <style>
   main {
     width: 100%;
-    height: 100vh;
+    height: 90vh;
+  }
+  .blog {
+    width: 100%;
+    height: 500px;
+    background-color: red;
   }
   #button_container {
-    position: absolute;
+    width: 100%;
+    text-align: center;
+    position: relative;
     top: 2px;
     left: 2px;
   }
