@@ -17,7 +17,9 @@
     svgEl,
     gEl,
     width,
-    height = 600;
+    height = 600,
+    time_height = 200,
+    current_data;
 
   let margin = { top: 20, right: 80, bottom: 20, left: 80 };
 
@@ -34,14 +36,14 @@
   // simulation function
   async function setupSimulation(selected) {
     let strength;
-    if (selected[0].conflict_country == "Yemen") {
-      strength = -3000;
-    } else if (selected[0].conflict_country == "Sudan") {
-      strength = -2000;
-    } else if (selected[0].conflict_country == "Afghanistan") {
-      strength = -4000;
+    if (selected[1].conflict_country == "Yemen") {
+      strength = -2999;
+    } else if (selected[1].conflict_country == "Sudan") {
+      strength = -1999;
+    } else if (selected[1].conflict_country == "Afghanistan") {
+      strength = -3999;
     } else {
-      strength = -800;
+      strength = -799;
     }
 
     // calculate nodes and links
@@ -70,7 +72,7 @@
         nodes = [...nodes];
         nodes.forEach((d) => {
           d.x = Math.max(5, Math.min(width - 20, d.x));
-          d.y = Math.max(5, Math.min(height - 20, d.y));
+          d.y = Math.max(5, Math.min(height - 100, d.y));
         });
         renderedLinks = linkForce.links();
       });
@@ -109,6 +111,8 @@
     }
   }
 
+  let cntry = "Israel";
+
   onMount(async () => {
     // load the data
     [mend, actors] = await getCSV(["./mend.csv", "./actors.csv"]);
@@ -120,6 +124,9 @@
 
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
     let selected = russia_conflicts[5][1];
+    console.log(russia_conflicts);
+
+    current_data = selected;
 
     // timeline
     years = [...new Set(clean_mend.map((d) => d.Year))]; // Extract unique years
@@ -154,7 +161,60 @@
   }
 
   function change_country(data) {
+    cntry = data[0];
+    current_data = data[1];
     setupSimulation(data[1]);
+  }
+
+  function change_years(selected_years) {
+    if (!current_data || !simulation) return;
+
+    // Convert the year-month range to comparable Date objects
+    const start = new Date(selected_years[0].replace("-", "/") + "/01");
+    const end = new Date(selected_years[1].replace("-", "/") + "/01");
+
+    // Filter data within range
+    const filtered = current_data.filter((d) => {
+      const date = new Date(`${d.Year}/${parseInt(d.Month, 10)}/01`);
+      return date >= start && date <= end;
+    });
+
+    // Construct new nodes and links from filtered data
+    const { nodes: newNodes, links: newLinks } = constructNodesAndLinks(
+      filtered,
+      actors,
+    );
+
+    // --- instead of rebuilding simulation, just update data ---
+    // Preserve old positions if possible (to avoid jumpy motion)
+    const nodeMap = new Map(nodes.map((d) => [d.id, d]));
+    newNodes.forEach((n) => {
+      if (nodeMap.has(n.id)) {
+        const old = nodeMap.get(n.id);
+        n.x = old.x;
+        n.y = old.y;
+        n.vx = old.vx || 0;
+        n.vy = old.vy || 0;
+      }
+    });
+
+    // Update global references
+    nodes = newNodes;
+    links = newLinks;
+    renderedLinks = newLinks;
+
+    // Update simulation data
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
+
+    // Slightly reheat the simulation
+    simulation.alpha(0.5).restart();
+
+    // Update nodeElements to reflect new nodes
+    nodeElements = {};
+    nodes.forEach((node, i) => {
+      nodeElements[node.id] = circleRefs[i];
+    });
   }
 
   // text boxes size calculation
@@ -169,11 +229,14 @@
 </script>
 
 <main bind:clientHeight={height} bind:clientWidth={width}>
-  <div class="blog">ewofijweoijfoweijfo</div>
+  <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
   <div class="visualization">
     <div id="button_container">
       {#each russia_conflicts as r}
-        <button on:click={() => change_country(r)}>{r[0]}</button>
+        <button
+          on:click={() => change_country(r)}
+          class:selected={cntry === r[0]}>{r[0]}</button
+        >
       {/each}
     </div>
     <svg bind:this={svgEl} {width} {height}>
@@ -204,18 +267,18 @@
               <title>{node.id}</title>
             </circle>
 
-            <!-- {#if textBBoxes[i]}
-            <rect
-              x={node.x - textBBoxes[i].width / 2 - 4}
-              y={node.y + 15 - textBBoxes[i].height + 4}
-              width={textBBoxes[i].width + 8}
-              height={textBBoxes[i].height}
-              fill="#001C23"
-              opacity="0.4"
-              rx="1"
-              ry="1"
-            />
-          {/if} -->
+            {#if textBBoxes[i]}
+              <rect
+                x={node.x - textBBoxes[i].width / 2 - 4}
+                y={node.y + 15 - textBBoxes[i].height + 4}
+                width={textBBoxes[i].width + 8}
+                height={textBBoxes[i].height}
+                fill="#001C23"
+                opacity="0.4"
+                rx="1"
+                ry="1"
+              />
+            {/if}
 
             <text
               bind:this={textRefs[i]}
@@ -236,25 +299,59 @@
       </g>
     </svg>
   </div>
-  <div class="blog">ewofijweoijfoweijfo</div>
-  <Timeline {width} {height} {margin} {russia_present} {allYearMonthPairs} />
+  <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
 </main>
+<Timeline
+  {width}
+  {margin}
+  {russia_present}
+  {allYearMonthPairs}
+  {cntry}
+  on:yearsSelected={(e) => change_years(e.detail.years)}
+/>
 
 <style>
   main {
     width: 100%;
-    height: 90vh;
+    height: 80vh;
   }
+
   .blog {
     width: 100%;
     height: 500px;
-    background-color: red;
+    background-color: #001c23;
   }
+
   #button_container {
     width: 100%;
     text-align: center;
     position: relative;
     top: 2px;
     left: 2px;
+  }
+
+  button {
+    background-color: #001c23;
+    border: solid 1px rgb(99, 99, 99);
+    color: white;
+    padding: 4px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-family: "Montserrat";
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: yellow;
+    color: black;
+  }
+
+  .selected {
+    background-color: yellow;
+    color: black;
   }
 </style>

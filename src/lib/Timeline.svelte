@@ -1,8 +1,11 @@
 <script>
     import * as d3 from "d3";
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
     import { selectedYearsStore } from "../years";
-    export let margin, height, width, russia_present, allYearMonthPairs;
+    export let margin, width, russia_present, allYearMonthPairs, cntry;
 
+    let height = 200;
     let xAxisGroup;
     let selectedLineStart = null,
         selectedLineEnd = null,
@@ -12,6 +15,7 @@
     //create array with all years. some may be empty
     let svg;
     let selected_years = ["2018-1", "2024-12"];
+    // let dispatch_years = ["2018-1", "2024-12"];
 
     $: xScale = d3
         .scaleBand()
@@ -51,21 +55,22 @@
                 .style("fill", "white");
 
             d3.select(xAxisGroup).selectAll("line").style("stroke", "white");
-
             d3.select(xAxisGroup).select("path").style("stroke", "white");
-
             d3.select(xAxisGroup).call(xAxis);
         }
     }
 
-    const yOffsets = {
-        Syria: 50,
-        Sudan: 70, // 50 + 20
-        Israel: 90, // 70 + 20
-        Afghanistan: 110,
-        Yemen: 130,
-        Libya: 150,
-    };
+    // Suppose you have the unique countries represented in your data:
+    $: countries = Array.from(
+        new Set(russia_present.map((d) => d.conflict_country)),
+    );
+
+    // Create a band scale
+    $: yScale = d3
+        .scaleBand()
+        .domain(countries) // all unique countries
+        .range([margin.top * 2, height - margin.bottom]) // fit into available height
+        .padding(0.2); // add some spacing between rows
 
     // brushing
     $: brush = d3
@@ -78,8 +83,6 @@
         .on("start brush end", brushed);
 
     let snappedSelection = function (bandScale, domain) {
-        console.log("domain", domain);
-
         // helper: turn "2018-1" → number 201801
         function ymToNumber(ym) {
             const [y, m] = ym.split("-").map(Number);
@@ -167,93 +170,114 @@
                 .call(brush.move, [margin.left, width - margin.right]);
         }
     }
+
+    $: if (selected_years) {
+        dispatch("yearsSelected", { years: selected_years });
+    }
 </script>
 
-<svg {height} {width} bind:this={svg}>
-    <g
-        bind:this={xAxisGroup}
-        transform={`translate(0, ${height - margin.bottom})`}
-    />
-
-    {#each russia_present as r}
-        <circle
-            cx={xScale(`${r.Year}-${r.Month}`)}
-            cy={yOffsets[r.conflict_country]}
-            r="4"
-            fill="white"
-            opacity="0.5"
-        >
-        </circle>
-    {/each}
-
-    <g class="brush"> </g>
-    <!-- Period lines and year labels -->
-    {#if selectedLineStart && selectedLineEnd}
-        <!-- Start line and label -->
-        <line
-            x1={selectedLineStart}
-            y1={margin.top - 5}
-            x2={selectedLineStart}
-            y2={height - margin.bottom}
-            stroke="black"
-            stroke-width="2"
+<div class="timeline" bind:clientHeight={height}>
+    <svg {height} {width} bind:this={svg}>
+        <g
+            bind:this={xAxisGroup}
+            transform={`translate(0, ${height - margin.bottom})`}
         />
-        <!-- Start label background and text -->
-        <g>
-            <rect
-                x={selectedLineStart - 15}
-                y={margin.top - 19}
-                width="30"
-                height="15"
-                fill="white"
-                rx="3"
-                ry="3"
-            />
-            <text
-                x={selectedLineStart}
-                y={margin.top - 7}
-                text-anchor="middle"
-                font-size="12px"
-                font-weight="500"
-                fill="black"
+
+        {#each russia_present as r}
+            <circle
+                cx={xScale(`${r.Year}-${r.Month}`)}
+                cy={yScale(r.conflict_country)}
+                r="4"
+                class={r.conflict_country}
+                fill={r.conflict_country === cntry ? "yellow" : "white"}
+                opacity="0.5"
             >
-                {selectedYearStart}
-            </text>
-        </g>
+            </circle>
+        {/each}
 
-        <!-- End line -->
-        <line
-            x1={selectedLineEnd}
-            y1={margin.top - 5}
-            x2={selectedLineEnd}
-            y2={height - margin.bottom}
-            stroke="black"
-            stroke-width="2"
-        />
-
-        {#if selectedYearStart !== selectedYearEnd}
-            <!-- End label background and text -->
+        <g class="brush"> </g>
+        <!-- Period lines and year labels -->
+        {#if selectedLineStart && selectedLineEnd}
+            <!-- Start line and label -->
+            <line
+                x1={selectedLineStart}
+                y1={margin.top - 5}
+                x2={selectedLineStart}
+                y2={height - margin.bottom}
+                stroke="white"
+                stroke-width="2"
+            />
+            <!-- Start label background and text -->
             <g>
                 <rect
-                    x={selectedLineEnd - 15}
+                    x={selectedLineStart - 25}
                     y={margin.top - 19}
-                    width="30"
+                    width="50"
                     height="15"
                     fill="white"
                     rx="3"
                     ry="3"
                 />
                 <text
-                    x={selectedLineEnd}
+                    x={selectedLineStart}
                     y={margin.top - 7}
                     text-anchor="middle"
                     font-size="12px"
                     font-weight="500"
+                    font-family="Montserrat"
                     fill="black"
                 >
-                    {selectedYearEnd}
+                    {selectedYearStart}
                 </text>
             </g>
+
+            <!-- End line -->
+            <line
+                x1={selectedLineEnd}
+                y1={margin.top - 5}
+                x2={selectedLineEnd}
+                y2={height - margin.bottom}
+                stroke="white"
+                stroke-width="2"
+            />
+
+            {#if selectedYearStart !== selectedYearEnd}
+                <!-- End label background and text -->
+                <g>
+                    <rect
+                        x={selectedLineEnd - 25}
+                        y={margin.top - 19}
+                        width="50"
+                        height="15"
+                        fill="white"
+                        rx="3"
+                        ry="3"
+                    />
+                    <text
+                        x={selectedLineEnd}
+                        y={margin.top - 7}
+                        text-anchor="middle"
+                        font-size="12px"
+                        font-weight="500"
+                        font-family="Montserrat"
+                        fill="black"
+                    >
+                        {selectedYearEnd}
+                    </text>
+                </g>
+            {/if}
         {/if}
-    {/if}
-</svg>
+    </svg>
+</div>
+
+<style>
+    .timeline {
+        width: 100%;
+        height: 19vh;
+    }
+
+    :global(.selection) {
+        fill: rgba(255, 255, 255, 0.203);
+        stroke: none;
+    }
+</style>
