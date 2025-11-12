@@ -9,19 +9,35 @@
     let xAxisGroup;
     let selectedLineStart = null,
         selectedLineEnd = null,
-        selectedYearStart = null,
-        selectedYearEnd = null;
+        selectedYearStart = "2018-1",
+        selectedYearEnd = "2024-12";
 
     //create array with all years. some may be empty
     let svg;
     let selected_years = ["2018-1", "2024-12"];
-    // let dispatch_years = ["2018-1", "2024-12"];
 
     $: xScale = d3
         .scaleBand()
         .domain(allYearMonthPairs)
         .range([margin.left, width - margin.right])
         .padding(0.1);
+
+    // Create a band scale
+    $: yScale = d3
+        .scaleBand()
+        .domain(countries)
+        .range([margin.top * 2, height - margin.bottom])
+        .padding(0.2);
+
+    // brushing
+    $: brush = d3
+        .brushX()
+        .handleSize(10)
+        .extent([
+            [margin.left, margin.top],
+            [width - margin.right, height - margin.bottom],
+        ])
+        .on("start brush end", brushed);
 
     $: {
         if (xAxisGroup) {
@@ -65,23 +81,6 @@
         new Set(russia_present.map((d) => d.conflict_country)),
     );
 
-    // Create a band scale
-    $: yScale = d3
-        .scaleBand()
-        .domain(countries) // all unique countries
-        .range([margin.top * 2, height - margin.bottom]) // fit into available height
-        .padding(0.2); // add some spacing between rows
-
-    // brushing
-    $: brush = d3
-        .brushX()
-        .handleSize(10)
-        .extent([
-            [margin.left, margin.top],
-            [width - margin.right, height - margin.bottom],
-        ])
-        .on("start brush end", brushed);
-
     let snappedSelection = function (bandScale, domain) {
         // helper: turn "2018-1" → number 201801
         function ymToNumber(ym) {
@@ -97,12 +96,10 @@
         const minStr = domain.find((d) => ymToNumber(d) === minValue);
         const maxStr = domain.find((d) => ymToNumber(d) === maxValue);
 
-        console.log("min/max", minStr, maxStr);
-
         return [bandScale(minStr), bandScale(maxStr) + bandScale.bandwidth()];
     };
-    let previousSelectedYears = { start: null, end: null };
 
+    let previousSelectedYears = { start: null, end: null };
     function brushed(event) {
         if (
             !event.selection &&
@@ -183,6 +180,7 @@
             transform={`translate(0, ${height - margin.bottom})`}
         />
 
+        <!-- mediation events circles -->
         {#each russia_present as r}
             <circle
                 cx={xScale(`${r.Year}-${r.Month}`)}
@@ -195,9 +193,7 @@
             </circle>
         {/each}
 
-        <g class="brush"> </g>
-        <!-- Period lines and year labels -->
-        {#if selectedLineStart && selectedLineEnd}
+        <g class="brush">
             <!-- Start line and label -->
             <line
                 x1={selectedLineStart}
@@ -207,30 +203,6 @@
                 stroke="white"
                 stroke-width="2"
             />
-            <!-- Start label background and text -->
-            <g>
-                <rect
-                    x={selectedLineStart - 25}
-                    y={margin.top - 19}
-                    width="50"
-                    height="15"
-                    fill="white"
-                    rx="3"
-                    ry="3"
-                />
-                <text
-                    x={selectedLineStart}
-                    y={margin.top - 7}
-                    text-anchor="middle"
-                    font-size="12px"
-                    font-weight="500"
-                    font-family="Montserrat"
-                    fill="black"
-                >
-                    {selectedYearStart}
-                </text>
-            </g>
-
             <!-- End line -->
             <line
                 x1={selectedLineEnd}
@@ -239,34 +211,56 @@
                 y2={height - margin.bottom}
                 stroke="white"
                 stroke-width="2"
-            />
+            /></g
+        >
 
-            {#if selectedYearStart !== selectedYearEnd}
-                <!-- End label background and text -->
-                <g>
-                    <rect
-                        x={selectedLineEnd - 25}
-                        y={margin.top - 19}
-                        width="50"
-                        height="15"
-                        fill="white"
-                        rx="3"
-                        ry="3"
-                    />
-                    <text
-                        x={selectedLineEnd}
-                        y={margin.top - 7}
-                        text-anchor="middle"
-                        font-size="12px"
-                        font-weight="500"
-                        font-family="Montserrat"
-                        fill="black"
-                    >
-                        {selectedYearEnd}
-                    </text>
-                </g>
-            {/if}
-        {/if}
+        <!-- Start label background and text -->
+        <g>
+            <rect
+                x={selectedLineStart - 25}
+                y={margin.top - 19}
+                width="50"
+                height="15"
+                fill="white"
+                rx="2"
+                ry="2"
+            />
+            <text
+                x={selectedLineStart}
+                y={margin.top - 7}
+                text-anchor="middle"
+                font-size="12px"
+                font-weight="500"
+                font-family="Montserrat"
+                fill="black"
+            >
+                {selectedYearStart}
+            </text>
+        </g>
+
+        <!-- End label background and text -->
+        <g>
+            <rect
+                x={selectedLineEnd - 25}
+                y={margin.top - 19}
+                width="50"
+                height="15"
+                fill="white"
+                rx="2"
+                ry="2"
+            />
+            <text
+                x={selectedLineEnd}
+                y={margin.top - 7}
+                text-anchor="middle"
+                font-size="12px"
+                font-weight="500"
+                font-family="Montserrat"
+                fill="black"
+            >
+                {selectedYearEnd}
+            </text>
+        </g>
     </svg>
 </div>
 

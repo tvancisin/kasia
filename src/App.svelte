@@ -301,14 +301,16 @@
   </div>
   <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
 </main>
-<Timeline
-  {width}
-  {margin}
-  {russia_present}
-  {allYearMonthPairs}
-  {cntry}
-  on:yearsSelected={(e) => change_years(e.detail.years)}
-/>
+{#if allYearMonthPairs.length > 0}
+  <Timeline
+    {width}
+    {margin}
+    {russia_present}
+    {allYearMonthPairs}
+    {cntry}
+    on:yearsSelected={(e) => change_years(e.detail.years)}
+  />
+{/if}
 
 <style>
   main {
