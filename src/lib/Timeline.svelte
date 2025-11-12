@@ -201,7 +201,7 @@
                 x2={selectedLineStart}
                 y2={height - margin.bottom}
                 stroke="white"
-                stroke-width="2"
+                stroke-width="1"
             />
             <!-- End line -->
             <line
@@ -210,7 +210,7 @@
                 x2={selectedLineEnd}
                 y2={height - margin.bottom}
                 stroke="white"
-                stroke-width="2"
+                stroke-width="1"
             /></g
         >
 
@@ -247,7 +247,6 @@
                 height="15"
                 fill="white"
                 rx="2"
-                ry="2"
             />
             <text
                 x={selectedLineEnd}

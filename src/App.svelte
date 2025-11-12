@@ -7,7 +7,12 @@
   // TODO
   // filter by number of connections
 
-  let simulation,
+  let renderedLinks = [],
+    // will populate this with DOM elements keyed by node ID
+    nodeElements = {},
+    // will hold the <circle> DOM elements
+    circleRefs = [],
+    simulation,
     nodes,
     links,
     maxValue,
@@ -18,30 +23,51 @@
     gEl,
     width,
     height = 600,
-    time_height = 200,
-    current_data;
-
-  let margin = { top: 20, right: 80, bottom: 20, left: 80 };
-
-  let renderedLinks = [];
-  // will populate this with DOM elements keyed by node ID
-  let nodeElements = {};
-  // will hold the <circle> DOM elements
-  let circleRefs = [];
-
-  let years = [],
+    current_data,
+    margin = { top: 20, right: 50, bottom: 20, left: 50 },
+    years = [],
     allYearMonthPairs = [],
-    russia_present = [];
+    cntry = "Israel",
+    russia_present = [],
+    opacityScale,
+    widthScale,
+    // text boxes size calculation
+    textRefs = [],
+    textBBoxes = [];
+
+  // init
+  onMount(async () => {
+    // load the data
+    [mend, actors] = await getCSV(["./mend.csv", "./actors.csv"]);
+    let clean_mend = mend.filter((d) => d.med_event_ID != "");
+    let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
+    russia_present = clean_mend.filter((item) =>
+      item.third_party_id_GLOPAD?.split(";").includes(russia),
+    );
+
+    russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
+    let selected = russia_conflicts[5][1];
+    current_data = selected;
+
+    // timeline
+    years = [...new Set(clean_mend.map((d) => d.Year))]; // Extract unique years
+    allYearMonthPairs = years.flatMap((year) =>
+      Array.from({ length: 12 }, (_, i) => `${year}-${i + 1}`),
+    );
+
+    // trigger simulation
+    setupSimulation(selected);
+  });
 
   // simulation function
   async function setupSimulation(selected) {
     let strength;
     if (selected[1].conflict_country == "Yemen") {
-      strength = -2999;
+      strength = -3999;
     } else if (selected[1].conflict_country == "Sudan") {
       strength = -1999;
     } else if (selected[1].conflict_country == "Afghanistan") {
-      strength = -3999;
+      strength = -4999;
     } else {
       strength = -799;
     }
@@ -72,7 +98,7 @@
         nodes = [...nodes];
         nodes.forEach((d) => {
           d.x = Math.max(5, Math.min(width - 20, d.x));
-          d.y = Math.max(5, Math.min(height - 100, d.y));
+          d.y = Math.max(20, Math.min(height - 100, d.y));
         });
         renderedLinks = linkForce.links();
       });
@@ -111,34 +137,6 @@
     }
   }
 
-  let cntry = "Israel";
-
-  onMount(async () => {
-    // load the data
-    [mend, actors] = await getCSV(["./mend.csv", "./actors.csv"]);
-    let clean_mend = mend.filter((d) => d.med_event_ID != "");
-    let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
-    russia_present = clean_mend.filter((item) =>
-      item.third_party_id_GLOPAD?.split(";").includes(russia),
-    );
-
-    russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
-    let selected = russia_conflicts[5][1];
-    console.log(russia_conflicts);
-
-    current_data = selected;
-
-    // timeline
-    years = [...new Set(clean_mend.map((d) => d.Year))]; // Extract unique years
-    allYearMonthPairs = years.flatMap((year) =>
-      Array.from({ length: 12 }, (_, i) => `${year}-${i + 1}`),
-    );
-
-    // trigger simulation
-    setupSimulation(selected);
-  });
-
-  let opacityScale, widthScale;
   $: if (maxValue) {
     opacityScale = d3.scaleLinear().domain([1, maxValue]).range([0.1, 1]);
     widthScale = d3.scaleLinear().domain([1, maxValue]).range([1, 8]);
@@ -216,10 +214,6 @@
       nodeElements[node.id] = circleRefs[i];
     });
   }
-
-  // text boxes size calculation
-  let textRefs = [];
-  let textBBoxes = [];
 
   $: if (textRefs.length > 0) {
     textBBoxes = textRefs.map(
@@ -334,7 +328,7 @@
 
   button {
     background-color: #001c23;
-    border: solid 1px rgb(99, 99, 99);
+    border: solid 1px rgb(58, 58, 58);
     color: white;
     padding: 4px 20px;
     text-align: center;
