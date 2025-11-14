@@ -3,6 +3,66 @@
   import { onMount, tick } from "svelte";
   import { getCSV, constructNodesAndLinks } from "./utils";
   import Timeline from "./lib/Timeline.svelte";
+  import { selectedYearsStore } from "./years";
+
+  // reactive subscription
+  $: selectedPeriod = $selectedYearsStore;
+  $: console.log(selectedPeriod);
+
+  // subscribe to store
+  $: if ($selectedYearsStore.startDate && $selectedYearsStore.endDate) {
+    filterDataByDate(
+      $selectedYearsStore.startDate,
+      $selectedYearsStore.endDate,
+    );
+  }
+
+  function filterDataByDate(startDate, endDate) {
+    if (!current_data || !simulation) return;
+
+    const filtered = current_data.filter((d) => {
+      const day = d.Day ? parseInt(d.Day, 10) : 1;
+      const month = d.Month ? parseInt(d.Month, 10) - 1 : 0; // JS months 0-indexed
+      const year = d.Year ? parseInt(d.Year, 10) : 1970;
+
+      const date = new Date(year, month, day);
+
+      return date >= startDate && date <= endDate;
+    });
+
+    // build nodes & links
+    const { nodes: newNodes, links: newLinks } = constructNodesAndLinks(
+      filtered,
+      actors,
+    );
+
+    // preserve old node positions if possible
+    const nodeMap = new Map(nodes.map((d) => [d.id, d]));
+    newNodes.forEach((n) => {
+      if (nodeMap.has(n.id)) {
+        const old = nodeMap.get(n.id);
+        n.x = old.x;
+        n.y = old.y;
+        n.vx = old.vx || 0;
+        n.vy = old.vy || 0;
+      }
+    });
+
+    nodes = newNodes;
+    links = newLinks;
+    renderedLinks = newLinks;
+
+    // update simulation
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
+    simulation.alpha(0.5).restart();
+
+    // update node elements references
+    nodeElements = {};
+    nodes.forEach((node, i) => {
+      nodeElements[node.id] = circleRefs[i];
+    });
+  }
 
   // TODO
   // filter by number of connections
@@ -24,10 +84,10 @@
     width,
     height = 600,
     current_data,
-    margin = { top: 20, right: 50, bottom: 20, left: 50 },
+    margin = { top: 20, right: 50, bottom: 20, left: 85 },
     years = [],
     allYearMonthPairs = [],
-    cntry = "Israel",
+    cntry = "Sudan",
     russia_present = [],
     opacityScale,
     widthScale,
@@ -38,10 +98,11 @@
   // init
   onMount(async () => {
     // load the data
-    [mend, actors] = await getCSV(["./mend.csv", "./actors.csv"]);
+    [mend, actors] = await getCSV(["./mend_latest.csv", "./actors.csv"]);
     let clean_mend = mend.filter((d) => d.med_event_ID != "");
+    let filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
-    russia_present = clean_mend.filter((item) =>
+    russia_present = filter_to_2324.filter((item) =>
       item.third_party_id_GLOPAD?.split(";").includes(russia),
     );
 
@@ -49,21 +110,21 @@
     let selected = russia_conflicts[5][1];
     current_data = selected;
 
+    // trigger simulation
+    setupSimulation(selected);
+
     // timeline
-    years = [...new Set(clean_mend.map((d) => d.Year))]; // Extract unique years
+    years = [...new Set(filter_to_2324.map((d) => d.Year))]; // Extract unique years
     allYearMonthPairs = years.flatMap((year) =>
       Array.from({ length: 12 }, (_, i) => `${year}-${i + 1}`),
     );
-
-    // trigger simulation
-    setupSimulation(selected);
   });
 
   // simulation function
   async function setupSimulation(selected) {
     let strength;
     if (selected[1].conflict_country == "Yemen") {
-      strength = -3999;
+      strength = -499;
     } else if (selected[1].conflict_country == "Sudan") {
       strength = -1999;
     } else if (selected[1].conflict_country == "Afghanistan") {
@@ -98,7 +159,7 @@
         nodes = [...nodes];
         nodes.forEach((d) => {
           d.x = Math.max(5, Math.min(width - 20, d.x));
-          d.y = Math.max(20, Math.min(height - 100, d.y));
+          d.y = Math.max(20, Math.min(height - 20, d.y));
         });
         renderedLinks = linkForce.links();
       });
@@ -158,61 +219,13 @@
     simulation.alpha(0.3).restart();
   }
 
+  let timelineRef;
+
   function change_country(data) {
     cntry = data[0];
     current_data = data[1];
     setupSimulation(data[1]);
-  }
-
-  function change_years(selected_years) {
-    if (!current_data || !simulation) return;
-
-    // Convert the year-month range to comparable Date objects
-    const start = new Date(selected_years[0].replace("-", "/") + "/01");
-    const end = new Date(selected_years[1].replace("-", "/") + "/01");
-
-    // Filter data within range
-    const filtered = current_data.filter((d) => {
-      const date = new Date(`${d.Year}/${parseInt(d.Month, 10)}/01`);
-      return date >= start && date <= end;
-    });
-
-    // Construct new nodes and links from filtered data
-    const { nodes: newNodes, links: newLinks } = constructNodesAndLinks(
-      filtered,
-      actors,
-    );
-
-    // --- instead of rebuilding simulation, just update data ---
-    // Preserve old positions if possible (to avoid jumpy motion)
-    const nodeMap = new Map(nodes.map((d) => [d.id, d]));
-    newNodes.forEach((n) => {
-      if (nodeMap.has(n.id)) {
-        const old = nodeMap.get(n.id);
-        n.x = old.x;
-        n.y = old.y;
-        n.vx = old.vx || 0;
-        n.vy = old.vy || 0;
-      }
-    });
-
-    // Update global references
-    nodes = newNodes;
-    links = newLinks;
-    renderedLinks = newLinks;
-
-    // Update simulation data
-    simulation.nodes(nodes);
-    simulation.force("link").links(links);
-
-    // Slightly reheat the simulation
-    simulation.alpha(0.5).restart();
-
-    // Update nodeElements to reflect new nodes
-    nodeElements = {};
-    nodes.forEach((node, i) => {
-      nodeElements[node.id] = circleRefs[i];
-    });
+    timelineRef.clearBrush(); // clears brush
   }
 
   $: if (textRefs.length > 0) {
@@ -295,21 +308,22 @@
   </div>
   <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
 </main>
-{#if allYearMonthPairs.length > 0}
-  <Timeline
-    {width}
-    {margin}
-    {russia_present}
-    {allYearMonthPairs}
-    {cntry}
-    on:yearsSelected={(e) => change_years(e.detail.years)}
-  />
-{/if}
+<!-- {#if allYearMonthPairs.length > 0} -->
+<Timeline
+  bind:this={timelineRef}
+  {width}
+  {margin}
+  {russia_present}
+  {allYearMonthPairs}
+  {cntry}
+/>
+
+<!-- {/if} -->
 
 <style>
   main {
     width: 100%;
-    height: 80vh;
+    height: 79vh;
   }
 
   .blog {

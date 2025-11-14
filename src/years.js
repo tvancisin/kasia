@@ -1,4 +1,8 @@
 
 import { writable } from 'svelte/store';
 
-export const selectedYearsStore = writable([]);
+// initial state can be null or full timeline
+export const selectedYearsStore = writable({
+    startDate: null,
+    endDate: null
+});
