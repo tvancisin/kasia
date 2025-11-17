@@ -83,6 +83,7 @@
     gEl,
     width,
     height = 600,
+    filter_to_2324,
     current_data,
     margin = { top: 20, right: 50, bottom: 20, left: 85 },
     years = [],
@@ -100,8 +101,10 @@
     // load the data
     [mend, actors] = await getCSV(["./mend_latest.csv", "./actors.csv"]);
     clean_mend = mend.filter((d) => d.med_event_ID != "");
-    let filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
+    filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
+    console.log(russia);
+    
     russia_present = filter_to_2324.filter((item) =>
       item.third_party_id_GLOPAD?.split(";").includes(russia),
     );
@@ -367,7 +370,9 @@
 </div>
 
 <div class="visualization">
-  <OverallTimeline {clean_mend} />
+  {#if clean_mend}
+    <OverallTimeline {filter_to_2324} {russia_present} {width} {height} {margin}/>
+  {/if}
 </div>
 
 <style>
