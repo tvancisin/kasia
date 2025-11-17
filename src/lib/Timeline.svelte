@@ -130,6 +130,7 @@
                 cx={xScale(r.date)}
                 cy={yScale(r.conflict_country) + yScale.bandwidth() / 2}
                 r="4"
+                stroke={r.agmt === "1" ? "steelblue" : "none"}
                 fill={r.conflict_country === cntry ? "yellow" : "white"}
                 opacity="0.5"
             />

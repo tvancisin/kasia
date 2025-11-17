@@ -24,9 +24,7 @@
       const day = d.Day ? parseInt(d.Day, 10) : 1;
       const month = d.Month ? parseInt(d.Month, 10) - 1 : 0; // JS months 0-indexed
       const year = d.Year ? parseInt(d.Year, 10) : 1970;
-
       const date = new Date(year, month, day);
-
       return date >= startDate && date <= endDate;
     });
 
@@ -68,6 +66,7 @@
   // filter by number of connections
 
   let renderedLinks = [],
+    renderedNodes = [],
     // will populate this with DOM elements keyed by node ID
     nodeElements = {},
     // will hold the <circle> DOM elements
@@ -233,11 +232,33 @@
       (el) => el?.getBBox?.() || { width: 0, height: 0 },
     );
   }
+
+  let minConnections = 1; // default slider value
+  // filter links based on slider setting
+  $: if (links) {
+    renderedLinks = links.filter((l) => l.value >= minConnections);
+    renderedNodes = nodes.filter((n) =>
+      renderedLinks.some((l) => l.source.id === n.id || l.target.id === n.id),
+    );
+  }
 </script>
 
 <main bind:clientHeight={height} bind:clientWidth={width}>
   <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
   <div class="visualization">
+    <div id="slider_container">
+      <label for="connectionSlider" style="color: white; margin-right: 5px;">
+        Connections: {minConnections}
+      </label>
+      <input
+        id="connectionSlider"
+        type="range"
+        min="1"
+        max={maxValue}
+        step="1"
+        bind:value={minConnections}
+      />
+    </div>
     <div id="button_container">
       {#each russia_conflicts as r}
         <button
@@ -260,7 +281,7 @@
           />
         {/each}
 
-        {#each nodes as node, i (node.id)}
+        {#each renderedNodes as node, i (node.id)}
           <g>
             <circle
               bind:this={circleRefs[i]}
@@ -363,5 +384,16 @@
   .selected {
     background-color: yellow;
     color: black;
+  }
+
+  #slider_container {
+    position: absolute;
+    bottom: 120px;
+    right: 10px;
+    color: white;
+    font-family: "Montserrat";
+    font-size: 14px;
+    display: flex;
+    align-items: center;
   }
 </style>
