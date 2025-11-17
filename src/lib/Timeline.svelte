@@ -113,8 +113,17 @@
 
 <div class="timeline" bind:clientHeight={height}>
     <div class="timeline_legend">
-        <span class="legend-circle"></span>
-        - Mediation Event
+        <div class="legend-item one">
+            <span class="legend-circle" style="background-color: white;"></span>
+            Mediation Event
+        </div>
+        <div class="legend-item">
+            <span
+                class="legend-circle"
+                style="background-color: white; width: 15px; height: 15px"
+            ></span>
+            Agreement Signed
+        </div>
     </div>
     <svg {height} {width} bind:this={svg}>
         <!-- X axis -->
@@ -129,8 +138,7 @@
             <circle
                 cx={xScale(r.date)}
                 cy={yScale(r.conflict_country) + yScale.bandwidth() / 2}
-                r="4"
-                stroke={r.agmt === "1" ? "steelblue" : "none"}
+                r={r.agmt === "1" ? "8" : "4"}
                 fill={r.conflict_country === cntry ? "yellow" : "white"}
                 opacity="0.5"
             />
@@ -150,25 +158,30 @@
         font-family: "Montserrat";
         font-size: 12px;
         position: absolute;
-        bottom: 16vh;
-        left: 80px;
+        bottom: 19vh;
+        left: 20px;
 
-        display: flex; /* align circle and text horizontally */
-        align-items: center; /* vertically center */
-        gap: 6px; /* space between circle and text */
+        display: flex;
+        flex-direction: column; /* vertical stacking */
+        gap: 6px; /* space between items */
+    }
+
+    .legend-item {
+        display: flex; /* circle + text inline */
+        align-items: center; /* vertically center circle with text */
+        gap: 10px; /* space between circle and its label */
+    }
+
+    .one {
+        margin-left: 3px;
     }
 
     .legend-circle {
         width: 8px;
         height: 8px;
-        background-color: rgb(
-            255,
-            255,
-            255
-        ); /* or the same color you use for timeline circles */
+        border-radius: 50%;
+        flex-shrink: 0;
         opacity: 0.5;
-        border-radius: 50%; /* makes it a perfect circle */
-        flex-shrink: 0; /* prevents shrinking */
     }
 
     :global(.selection) {

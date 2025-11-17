@@ -4,10 +4,10 @@
   import { getCSV, constructNodesAndLinks } from "./utils";
   import Timeline from "./lib/Timeline.svelte";
   import { selectedYearsStore } from "./years";
+  import OverallTimeline from "./lib/OverallTimeline.svelte";
 
   // reactive subscription
   $: selectedPeriod = $selectedYearsStore;
-  $: console.log(selectedPeriod);
 
   // subscribe to store
   $: if ($selectedYearsStore.startDate && $selectedYearsStore.endDate) {
@@ -77,6 +77,7 @@
     maxValue,
     russia_conflicts,
     mend,
+    clean_mend,
     actors,
     svgEl,
     gEl,
@@ -98,7 +99,7 @@
   onMount(async () => {
     // load the data
     [mend, actors] = await getCSV(["./mend_latest.csv", "./actors.csv"]);
-    let clean_mend = mend.filter((d) => d.med_event_ID != "");
+    clean_mend = mend.filter((d) => d.med_event_ID != "");
     let filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
     russia_present = filter_to_2324.filter((item) =>
@@ -243,30 +244,46 @@
   }
 </script>
 
-<main bind:clientHeight={height} bind:clientWidth={width}>
-  <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
-  <div class="visualization">
-    <div id="slider_container">
-      <label for="connectionSlider" style="color: white; margin-right: 5px;">
-        Connections: {minConnections}
-      </label>
-      <input
-        id="connectionSlider"
-        type="range"
-        min="1"
-        max={maxValue}
-        step="1"
-        bind:value={minConnections}
-      />
-    </div>
-    <div id="button_container">
+<h1>Russia in Peace Mediation</h1>
+<div class="blog_text">
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+    non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  </p>
+</div>
+<div class="visualization">
+  <div id="slider_container">
+    <input
+      id="connectionSlider"
+      type="range"
+      min="1"
+      max={maxValue}
+      step="1"
+      bind:value={minConnections}
+    />
+    <label for="connectionSlider" style="color: gray; margin-right: 5px;">
+      Connections: {minConnections}
+    </label>
+  </div>
+
+  <div id="dropdown_container">
+    <select
+      bind:value={cntry}
+      on:change={() => {
+        const selected = russia_conflicts.find((r) => r[0] === cntry);
+        if (selected) change_country(selected);
+      }}
+    >
       {#each russia_conflicts as r}
-        <button
-          on:click={() => change_country(r)}
-          class:selected={cntry === r[0]}>{r[0]}</button
-        >
+        <option value={r[0]}>{r[0]}</option>
       {/each}
-    </div>
+    </select>
+  </div>
+  <div class="network" bind:clientHeight={height} bind:clientWidth={width}>
     <svg bind:this={svgEl} {width} {height}>
       <g bind:this={gEl}>
         {#each renderedLinks as l (l.source.id + "-" + l.target.id)}
@@ -302,7 +319,7 @@
                 width={textBBoxes[i].width + 8}
                 height={textBBoxes[i].height}
                 fill="#001C23"
-                opacity="0.4"
+                opacity="0.5"
                 rx="1"
                 ry="1"
               />
@@ -317,7 +334,7 @@
               stroke="black"
               stroke-width="2"
               paint-order="stroke fill"
-              font-size="12"
+              font-size="10"
               font-family="Montserrat"
             >
               {node.name}
@@ -327,73 +344,107 @@
       </g>
     </svg>
   </div>
-  <!-- <div class="blog">ewofijweoijfoweijfo</div> -->
-</main>
-<!-- {#if allYearMonthPairs.length > 0} -->
-<Timeline
-  bind:this={timelineRef}
-  {width}
-  {margin}
-  {russia_present}
-  {allYearMonthPairs}
-  {cntry}
-/>
+  <div class="timeline">
+    <Timeline
+      bind:this={timelineRef}
+      {width}
+      {margin}
+      {russia_present}
+      {allYearMonthPairs}
+      {cntry}
+    />
+  </div>
+</div>
+<div class="blog_text">
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+    non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  </p>
+</div>
 
-<!-- {/if} -->
+<div class="visualization">
+  <OverallTimeline {clean_mend} />
+</div>
 
 <style>
-  main {
-    width: 100%;
-    height: 79vh;
+  h1 {
+    width: 80%;
+    margin: 50px auto;
+    text-align: center;
+    color: white;
+    font-family: "Montserrat", sans-serif;
   }
 
-  .blog {
+  .visualization {
+    position: relative;
     width: 100%;
-    height: 500px;
+    height: 100vh;
+  }
+
+  .network {
+    width: 100%;
+    height: 79vh;
     background-color: #001c23;
   }
 
-  #button_container {
+  .timeline {
     width: 100%;
-    text-align: center;
-    position: relative;
+    height: 19vh;
+    background-color: #001c23;
+  }
+
+  .blog_text {
+    width: 55%;
+    color: white;
+    font-family: "Montserrat", sans-serif;
+    margin: 50px auto;
+    text-align: justify;
+  }
+
+  @media (max-width: 768px) {
+    .blog_text {
+      width: 95%;
+    }
+  }
+
+  #dropdown_container {
+    position: absolute;
+    width: 150px;
     top: 2px;
     left: 2px;
   }
 
-  button {
-    background-color: #001c23;
-    border: solid 1px rgb(58, 58, 58);
-    color: white;
-    padding: 4px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
+  select {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 14px;
     font-family: "Montserrat";
     font-weight: 500;
+    background-color: #001c23;
+    color: white;
+    border: 1px solid rgb(58, 58, 58);
     border-radius: 4px;
     cursor: pointer;
   }
 
-  button:hover {
-    background-color: yellow;
-    color: black;
-  }
-
-  .selected {
-    background-color: yellow;
-    color: black;
+  select:hover {
+    background-color: #001c23;
+    color: white;
   }
 
   #slider_container {
     position: absolute;
-    bottom: 120px;
+    top: 10px;
     right: 10px;
     color: white;
     font-family: "Montserrat";
     font-size: 14px;
     display: flex;
+    flex-direction: column; /* stack children vertically */
     align-items: center;
   }
 </style>
