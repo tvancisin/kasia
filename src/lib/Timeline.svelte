@@ -10,7 +10,12 @@
 
     export function clearBrush() {
         if (brush && brushGroup) {
-            d3.select(brushGroup).call(brush.move, null); // clears rectangle
+            d3.select(brushGroup).call(brush.move, null);
+
+            // Hide handle lines & labels
+            const g = d3.select(svg).select(".brush-handles");
+            g.selectAll("line").attr("stroke", "none");
+            g.selectAll("text").text("");
         }
     }
 
@@ -20,6 +25,54 @@
     let svg;
     let startDate = 0,
         endDate = 0;
+
+    function updateBrushHandles(x0, x1) {
+        const g = d3.select(svg).select(".brush-handles");
+
+        const yTop = margin.top;
+        const yBottom = height - margin.bottom;
+
+        // Start line
+        g.select(".brush-start-line")
+            .attr("x1", x0)
+            .attr("x2", x0)
+            .attr("y1", yTop)
+            .attr("y2", yBottom)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1.5)
+            .attr("opacity", 0.9);
+
+        // End line
+        g.select(".brush-end-line")
+            .attr("x1", x1)
+            .attr("x2", x1)
+            .attr("y1", yTop)
+            .attr("y2", yBottom)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1.5)
+            .attr("opacity", 0.9);
+
+        const labelFormat = d3.timeFormat("%d %b %Y");
+
+        // Labels
+        g.select(".brush-start-label")
+            .attr("x", x0)
+            .attr("y", yTop - 6)
+            .text(labelFormat(startDate))
+            .style("fill", "white")
+            .style("font-size", "11px")
+            .style("font-family", "'Montserrat', sans-serif")
+            .style("text-anchor", "middle");
+
+        g.select(".brush-end-label")
+            .attr("x", x1)
+            .attr("y", yTop - 6)
+            .text(labelFormat(endDate))
+            .style("fill", "white")
+            .style("font-size", "11px")
+            .style("font-family", "'Montserrat', sans-serif")
+            .style("text-anchor", "middle");
+    }
 
     // initialize brush once
     $: if (brushGroup && !brush) {
@@ -32,10 +85,13 @@
             .on("brush end", (event) => {
                 if (event.selection) {
                     const [x0, x1] = event.selection;
+
                     startDate = xScale.invert(x0);
                     endDate = xScale.invert(x1);
 
                     selectedYearsStore.set({ startDate, endDate });
+
+                    updateBrushHandles(x0, x1);
                 }
             });
 
@@ -126,6 +182,14 @@
         </div>
     </div>
     <svg {height} {width} bind:this={svg}>
+        <!-- brushed boundary lines + labels -->
+        <g class="brush-handles">
+            <line class="brush-start-line" />
+            <text class="brush-start-label" />
+
+            <line class="brush-end-line" />
+            <text class="brush-end-label" />
+        </g>
         <!-- X axis -->
         <g
             bind:this={xAxisGroup}

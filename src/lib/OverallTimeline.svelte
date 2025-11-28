@@ -74,8 +74,9 @@
         d3.select(xAxisG)
             .call(axis)
             .selectAll("text")
-            .attr("fill", "gray")
-            .attr("font-size", 10)
+            .attr("fill", "white")
+            .attr("font-size", 12)
+            .attr("font-family", "'Montserrat', sans-serif")
             .attr("text-anchor", "middle");
 
         d3.select(xAxisG)
@@ -93,11 +94,37 @@
 
 <svg {width} {height} bind:this={svgEl}>
     <g transform={`translate(0,${height - 60})`} bind:this={xAxisG} />
+    <!-- LEGEND -->
+    <g transform="translate(20,20)">
+        <!-- Overall (gray) -->
+        <rect x="0" y="0" width="18" height="12" fill="gray" rx="2" />
+        <text
+            x="24"
+            y="10"
+            fill="white"
+            font-size="12"
+            font-family="Montserrat"
+        >
+            Overall
+        </text>
+
+        <!-- Russia (white) -->
+        <rect x="0" y="22" width="18" height="12" fill="white" rx="2" />
+        <text
+            x="24"
+            y="32"
+            fill="white"
+            font-size="12"
+            font-family="Montserrat"
+        >
+            Russia
+        </text>
+    </g>
 
     {#each layers as layer, i}
         <path
-            fill={i === 0 ? "black" : "lightgray"}
-            opacity="0.7"
+            fill={i === 0 ? "white" : "gray"}
+            opacity="1"
             stroke="none"
             d={d3
                 .area()
@@ -112,11 +139,20 @@
     {#each monthKeys as m, idx}
         <!-- bottom layer (con21) -->
         {#if stackedData[idx].con21 > 0}
+            <rect
+                x={xScale(m) + xScale.bandwidth() / 2 - 10}
+                y={yScale(layers[0][idx][1]) - 16}
+                width="20"
+                height="13"
+                rx="2"
+                fill="black"
+                opacity="0.7"
+            />
             <text
                 x={xScale(m) + xScale.bandwidth() / 2}
-                y={yScale(layers[0][idx][1]) - 4}
+                y={yScale(layers[0][idx][1]) - 5}
                 text-anchor="middle"
-                font-size="10"
+                font-size="12"
                 fill="white"
                 font-family="Montserrat"
             >
@@ -133,11 +169,20 @@
 
         <!-- top layer (other) -->
         {#if stackedData[idx].other > 0}
+            <rect
+                x={xScale(m) + xScale.bandwidth() / 2 - 10}
+                y={yScale(layers[1][idx][1]) - 16}
+                width="20"
+                height="13"
+                rx="3"
+                fill="black"
+                opacity="0.7"
+            />
             <text
                 x={xScale(m) + xScale.bandwidth() / 2}
-                y={yScale(layers[1][idx][1]) - 4}
+                y={yScale(layers[1][idx][1]) - 5}
                 text-anchor="middle"
-                font-size="10"
+                font-size="12"
                 fill="white"
                 font-family="Montserrat"
             >

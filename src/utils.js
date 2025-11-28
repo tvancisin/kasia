@@ -25,13 +25,13 @@ export async function getGeo(paths) {
 export function constructNodesAndLinks(data, actors) {
     const nodes = [];
     const links = [];
-    const seenNodes = new Set(); // Track unique node IDs
-    const linkMap = new Map(); // Track links to avoid duplicates
+    const seenNodes = new Set();
+    const linkMap = new Map();
 
-    // Build a quick lookup map from GLOPAD_ID to ActorName
+    // Map GLOPAD_ID → full actor object
     const actorMap = new Map();
     actors.forEach((actor) => {
-        actorMap.set(actor.GLOPAD_ID, actor.ActorName);
+        actorMap.set(actor.GLOPAD_ID, actor);
     });
 
     data.forEach((d) => {
@@ -39,21 +39,30 @@ export function constructNodesAndLinks(data, actors) {
 
         const ids = d.third_party_id_GLOPAD.split(";").filter(Boolean);
 
-        // Create nodes if not already seen
+        // Create nodes
         ids.forEach((id) => {
             if (!seenNodes.has(id)) {
                 seenNodes.add(id);
-                const actorName = actorMap.get(id) || id;
-                nodes.push({ id, name: actorName, group: "actor" });
+
+                const actor = actorMap.get(id);
+
+                const actorName = actor?.ActorName || id;
+                const group = actor?.actor_classification_glopad || "actor";
+
+                nodes.push({
+                    id,
+                    name: actorName,
+                    group
+                });
             }
         });
 
-        // Create pairwise links (undirected)
+        // Create pairwise links
         for (let i = 0; i < ids.length; i++) {
             for (let j = i + 1; j < ids.length; j++) {
                 const source = ids[i];
                 const target = ids[j];
-                const key = [source, target].sort().join("->"); // canonical key for undirected link
+                const key = [source, target].sort().join("->");
 
                 if (linkMap.has(key)) {
                     linkMap.get(key).value += 1;

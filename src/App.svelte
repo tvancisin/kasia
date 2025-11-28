@@ -1,10 +1,11 @@
 <script>
   import * as d3 from "d3";
   import { onMount, tick } from "svelte";
-  import { getCSV, constructNodesAndLinks } from "./utils";
+  import { getCSV, constructNodesAndLinks, getGeo } from "./utils";
   import Timeline from "./lib/Timeline.svelte";
-  import { selectedYearsStore } from "./years";
   import OverallTimeline from "./lib/OverallTimeline.svelte";
+  import Matrix from "./lib/Matrix.svelte";
+  import { selectedYearsStore } from "./years";
 
   // reactive subscription
   $: selectedPeriod = $selectedYearsStore;
@@ -94,22 +95,26 @@
     widthScale,
     // text boxes size calculation
     textRefs = [],
-    textBBoxes = [];
+    textBBoxes = [],
+    matrix_nodes,
+    matrix_links;
 
   // init
+  let miserables;
   onMount(async () => {
     // load the data
-    [mend, actors] = await getCSV(["./mend_latest.csv", "./actors.csv"]);
+    [mend, actors] = await getCSV(["./mend_new.csv", "./actors.csv"]);
     clean_mend = mend.filter((d) => d.med_event_ID != "");
     filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
-    console.log(russia);
-    
+
     russia_present = filter_to_2324.filter((item) =>
       item.third_party_id_GLOPAD?.split(";").includes(russia),
     );
 
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
+    console.log(russia_conflicts);
+    
     let selected = russia_conflicts[5][1];
     current_data = selected;
 
@@ -121,6 +126,8 @@
     allYearMonthPairs = years.flatMap((year) =>
       Array.from({ length: 12 }, (_, i) => `${year}-${i + 1}`),
     );
+
+    [miserables] = await getGeo(["./matrix.json"]);
   });
 
   // simulation function
@@ -140,6 +147,13 @@
     let { nodes: ns, links: ls } = constructNodesAndLinks(selected, actors);
     nodes = ns;
     links = ls;
+
+    //matrix node_links
+    let { nodes: mns, links: mls } = constructNodesAndLinks(selected, actors);
+    matrix_nodes = mns;
+    matrix_links = mls;
+    console.log(matrix_nodes);
+    
 
     maxValue = Math.max(...links.map((l) => l.value));
     let strengthScale = d3
@@ -245,6 +259,7 @@
       renderedLinks.some((l) => l.source.id === n.id || l.target.id === n.id),
     );
   }
+
 </script>
 
 <h1>Russia in Peace Mediation</h1>
@@ -371,9 +386,21 @@
 
 <div class="visualization">
   {#if clean_mend}
-    <OverallTimeline {filter_to_2324} {russia_present} {width} {height} {margin}/>
+    <OverallTimeline
+      {filter_to_2324}
+      {russia_present}
+      {width}
+      {height}
+      {margin}
+    />
   {/if}
 </div>
+
+<!-- <div class="visualization">
+  {#if matrix_nodes && matrix_links && miserables}
+    <Matrix {miserables} {width} {height} {matrix_nodes} {matrix_links} />
+  {/if}
+</div> -->
 
 <style>
   h1 {
