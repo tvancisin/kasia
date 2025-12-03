@@ -3,10 +3,12 @@
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
     import { selectedYearsStore } from "../years";
-    export let margin, width, russia_present, allYearMonthPairs, cntry;
+    export let margin, width, russia_present, allYearMonthPairs, cntry, medType;
 
     let brush;
     let brushGroup;
+
+    $: console.log(medType);
 
     export function clearBrush() {
         if (brush && brushGroup) {
@@ -165,6 +167,8 @@
             .style("font-size", "12px");
         selY.select(".domain").remove();
     }
+
+    $: console.log(cntry);
 </script>
 
 <div class="timeline" bind:clientHeight={height}>
@@ -202,9 +206,14 @@
             <circle
                 cx={xScale(r.date)}
                 cy={yScale(r.conflict_country) + yScale.bandwidth() / 2}
-                r={r.agmt === "1" ? "8" : "4"}
+                r={r.agmt === "1" ? 8 : 4}
                 fill={r.conflict_country === cntry ? "yellow" : "white"}
-                opacity="0.5"
+                opacity={r.conflict_country !== cntry
+                    ? 0.5
+                    : medType === "All" || r.med_type === medType
+                      ? 0.5
+                      : 0}
+                class={r.conflict_country + " " + r.med_type}
             />
         {/each}
         <!-- brush -->
@@ -222,7 +231,7 @@
         font-family: "Montserrat";
         font-size: 12px;
         position: absolute;
-        bottom: 19vh;
+        bottom: 30.5vh;
         left: 20px;
 
         display: flex;

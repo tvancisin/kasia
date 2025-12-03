@@ -88,8 +88,10 @@
     current_data,
     margin = { top: 20, right: 50, bottom: 20, left: 85 },
     years = [],
+    mediationOptions,
     allYearMonthPairs = [],
     cntry = "Sudan",
+    medType = "All",
     russia_present = [],
     opacityScale,
     widthScale,
@@ -97,13 +99,16 @@
     textRefs = [],
     textBBoxes = [],
     matrix_nodes,
-    matrix_links;
+    matrix_links,
+    mGroup,
+    mrGroup,
+    allGroup;
 
   // init
   let miserables;
   onMount(async () => {
     // load the data
-    [mend, actors] = await getCSV(["./mend_new.csv", "./actors.csv"]);
+    [mend, actors] = await getCSV(["./mend_new.csv", "./actors_updated.csv"]);
     clean_mend = mend.filter((d) => d.med_event_ID != "");
     filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
@@ -112,9 +117,17 @@
       item.third_party_id_GLOPAD?.split(";").includes(russia),
     );
 
+    let m_mr_grouping = d3.groups(clean_mend, (d) => d.med_type);
+    mGroup = m_mr_grouping.find((r) => r[0] === "M")?.[1] ?? [];
+    mrGroup = m_mr_grouping.find((r) => r[0] === "MR")?.[1] ?? [];
+    allGroup = [...mGroup, ...mrGroup]; // merged
+
+    mediationOptions = [
+      ["All", allGroup],
+      ...m_mr_grouping.filter((r) => r[0] === "M" || r[0] === "MR"),
+    ];
+
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
-    console.log(russia_conflicts);
-    
     let selected = russia_conflicts[5][1];
     current_data = selected;
 
@@ -132,92 +145,107 @@
 
   // simulation function
   async function setupSimulation(selected) {
-    let strength;
-    if (selected[1].conflict_country == "Yemen") {
-      strength = -499;
-    } else if (selected[1].conflict_country == "Sudan") {
-      strength = -1999;
-    } else if (selected[1].conflict_country == "Afghanistan") {
-      strength = -4999;
+    console.log(selected);
+    if (selected.length === 0) {
+      return (nodes = []), (links = []);
     } else {
-      strength = -799;
-    }
+      let strength;
+      if (selected[0].conflict_country == "Yemen") {
+        strength = -500;
+      } else if (selected[0].conflict_country == "Israel") {
+        strength = -500;
+      } else if (selected[0].conflict_country == "Sudan") {
+        strength = -800;
+      } else if (selected[0].conflict_country == "Afghanistan") {
+        strength = -2500;
+      } else {
+        strength = -900;
+      }
 
-    // calculate nodes and links
-    let { nodes: ns, links: ls } = constructNodesAndLinks(selected, actors);
-    nodes = ns;
-    links = ls;
+      // calculate nodes and links
+      let { nodes: ns, links: ls } = constructNodesAndLinks(selected, actors);
+      nodes = ns;
+      links = ls;
 
-    //matrix node_links
-    let { nodes: mns, links: mls } = constructNodesAndLinks(selected, actors);
-    matrix_nodes = mns;
-    matrix_links = mls;
-    console.log(matrix_nodes);
-    
+      //matrix node_links
+      let { nodes: mns, links: mls } = constructNodesAndLinks(selected, actors);
+      matrix_nodes = mns;
+      matrix_links = mls;
 
-    maxValue = Math.max(...links.map((l) => l.value));
-    let strengthScale = d3
-      .scaleLinear()
-      .domain([1, maxValue])
-      .range([0.1, 0.5]);
+      maxValue = Math.max(...links.map((l) => l.value));
+      let strengthScale = d3
+        .scaleLinear()
+        .domain([1, maxValue])
+        .range([0.1, 0.5]);
 
-    let linkForce = d3
-      .forceLink(links)
-      .id((d) => d.id)
-      .strength((link) => strengthScale(link.value));
+      let linkForce = d3
+        .forceLink(links)
+        .id((d) => d.id)
+        .strength((link) => strengthScale(link.value));
 
-    // create simulation once
-    simulation = d3
-      .forceSimulation(nodes)
-      .force("link", linkForce)
-      .force("charge", d3.forceManyBody().strength(strength))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .on("tick", () => {
-        nodes = [...nodes];
-        nodes.forEach((d) => {
-          d.x = Math.max(5, Math.min(width - 20, d.x));
-          d.y = Math.max(20, Math.min(height - 20, d.y));
+      // create simulation once
+      simulation = d3
+        .forceSimulation(nodes)
+        .force("link", linkForce)
+        .force("charge", d3.forceManyBody().strength(strength))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .on("tick", () => {
+          nodes = [...nodes];
+          nodes.forEach((d) => {
+            d.x = Math.max(5, Math.min(width - 20, d.x));
+            d.y = Math.max(20, Math.min(height - 20, d.y));
+          });
+          renderedLinks = linkForce.links();
         });
-        renderedLinks = linkForce.links();
+
+      await tick(); // wait for DOM update
+
+      // rebuild nodeElements
+      nodeElements = {};
+      nodes.forEach((node, i) => {
+        nodeElements[node.id] = circleRefs[i];
       });
 
-    await tick(); // wait for DOM update
+      // dragging
+      const drag = d3
+        .drag()
+        .on("start", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x;
+          d.fy = event.y;
+        })
+        .on("end", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        });
 
-    // rebuild nodeElements
-    nodeElements = {};
-    nodes.forEach((node, i) => {
-      nodeElements[node.id] = circleRefs[i];
-    });
-
-    // dragging
-    const drag = d3
-      .drag()
-      .on("start", (event, d) => {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      })
-      .on("drag", (event, d) => {
-        d.fx = event.x;
-        d.fy = event.y;
-      })
-      .on("end", (event, d) => {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      });
-
-    for (const node of nodes) {
-      const el = nodeElements[node.id];
-      if (el) {
-        d3.select(el).datum(node).call(drag);
+      for (const node of nodes) {
+        const el = nodeElements[node.id];
+        if (el) {
+          d3.select(el).datum(node).call(drag);
+        }
       }
     }
   }
 
   $: if (maxValue) {
-    opacityScale = d3.scaleLinear().domain([1, maxValue]).range([0.1, 1]);
-    widthScale = d3.scaleLinear().domain([1, maxValue]).range([1, 8]);
+    // opacity adaptive max
+    const maxOpacity = maxValue <= 1 ? 0.6 : maxValue <= 5 ? 0.8 : 1;
+
+    opacityScale = d3
+      .scaleLinear()
+      .domain([1, maxValue])
+      .range([0.1, maxOpacity]);
+
+    // width adaptive max
+    const maxWidth = maxValue <= 1 ? 1 : maxValue <= 5 ? 5 : 8;
+
+    widthScale = d3.scaleLinear().domain([1, maxValue]).range([1, maxWidth]);
   }
 
   // Populate nodeElements from circleRefs after they mount
@@ -239,10 +267,23 @@
   let timelineRef;
 
   function change_country(data) {
+    medType = "All";
     cntry = data[0];
     current_data = data[1];
     setupSimulation(data[1]);
     timelineRef.clearBrush(); // clears brush
+  }
+
+  function change_mediation_type(type) {
+    if (type == "All") {
+      setupSimulation(current_data);
+      timelineRef.clearBrush(); // clears brush
+      return;
+    } else {
+      let new_data = current_data.filter((d) => d.med_type == type);
+      setupSimulation(new_data);
+      timelineRef.clearBrush(); // clears brush
+    }
   }
 
   $: if (textRefs.length > 0) {
@@ -259,7 +300,6 @@
       renderedLinks.some((l) => l.source.id === n.id || l.target.id === n.id),
     );
   }
-
 </script>
 
 <h1>Russia in Peace Mediation</h1>
@@ -284,7 +324,8 @@
       bind:value={minConnections}
     />
     <label for="connectionSlider" style="color: gray; margin-right: 5px;">
-      Connections: {minConnections}
+      At least: {minConnections}
+      {minConnections > 1 ? "connections" : "connection"}
     </label>
   </div>
 
@@ -298,6 +339,17 @@
     >
       {#each russia_conflicts as r}
         <option value={r[0]}>{r[0]}</option>
+      {/each}
+    </select>
+  </div>
+  <!-- MEDIATION TYPE DROPDOWN -->
+  <div id="dropdown_container_2">
+    <select
+      bind:value={medType}
+      on:change={() => change_mediation_type(medType)}
+    >
+      {#each mediationOptions as m}
+        <option value={m[0]}>{m[0]}</option>
       {/each}
     </select>
   </div>
@@ -319,12 +371,18 @@
         {#each renderedNodes as node, i (node.id)}
           <g>
             <circle
+              cx={node.x}
+              cy={node.y}
+              r={6}
+              fill="#001C23"
+              fill-opacity="0.5"
+            />
+            <circle
               bind:this={circleRefs[i]}
               cx={node.x}
               cy={node.y}
               r="4"
-              fill="black"
-              stroke="white"
+              fill="white"
               on:mousedown|preventDefault
             >
               <title>{node.id}</title>
@@ -370,6 +428,7 @@
       {russia_present}
       {allYearMonthPairs}
       {cntry}
+      {medType}
     />
   </div>
 </div>
@@ -419,7 +478,7 @@
 
   .network {
     width: 100%;
-    height: 79vh;
+    height: 69vh;
     background-color: #001c23;
   }
 
@@ -447,6 +506,13 @@
     position: absolute;
     width: 150px;
     top: 2px;
+    left: 2px;
+  }
+
+  #dropdown_container_2 {
+    position: absolute;
+    width: 150px;
+    top: 35px;
     left: 2px;
   }
 
