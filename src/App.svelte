@@ -323,13 +323,17 @@
       step="1"
       bind:value={minConnections}
     />
-    <label for="connectionSlider" style="color: gray; margin-right: 5px;">
-      At least: {minConnections}
+    <label
+      for="connectionSlider"
+      style="color: rgb(195, 195, 195); font-size: 12px; margin-right: 2px;"
+    >
+      At least {minConnections}
       {minConnections > 1 ? "connections" : "connection"}
     </label>
   </div>
 
   <div id="dropdown_container">
+    Select Country
     <select
       bind:value={cntry}
       on:change={() => {
@@ -344,6 +348,7 @@
   </div>
   <!-- MEDIATION TYPE DROPDOWN -->
   <div id="dropdown_container_2">
+    Select Mediation
     <select
       bind:value={medType}
       on:change={() => change_mediation_type(medType)}
@@ -503,6 +508,9 @@
   }
 
   #dropdown_container {
+    color: rgb(195, 195, 195);
+    font-family: "Montserrat";
+    font-size: 12px;
     position: absolute;
     width: 150px;
     top: 2px;
@@ -510,9 +518,12 @@
   }
 
   #dropdown_container_2 {
+    color: rgb(195, 195, 195);
+    font-family: "Montserrat";
+    font-size: 12px;
     position: absolute;
     width: 150px;
-    top: 35px;
+    top: 60px;
     left: 2px;
   }
 

@@ -227,7 +227,7 @@
         height: 20vh;
     }
     .timeline_legend {
-        color: gray;
+        color: rgb(195, 195, 195);
         font-family: "Montserrat";
         font-size: 12px;
         position: absolute;
