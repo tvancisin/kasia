@@ -286,6 +286,13 @@
     }
   }
 
+  // Map option text for display
+  function getOptionText(value) {
+    if (value === "M") return "Mediation";
+    if (value === "MR") return "Mediation-Related";
+    return value; // for "All" or anything else
+  }
+
   $: if (textRefs.length > 0) {
     textBBoxes = textRefs.map(
       (el) => el?.getBBox?.() || { width: 0, height: 0 },
@@ -346,15 +353,16 @@
       {/each}
     </select>
   </div>
+
   <!-- MEDIATION TYPE DROPDOWN -->
   <div id="dropdown_container_2">
-    Select Mediation
+    Select Activity
     <select
       bind:value={medType}
       on:change={() => change_mediation_type(medType)}
     >
       {#each mediationOptions as m}
-        <option value={m[0]}>{m[0]}</option>
+        <option value={m[0]}>{getOptionText(m[0])}</option>
       {/each}
     </select>
   </div>
@@ -512,7 +520,7 @@
     font-family: "Montserrat";
     font-size: 12px;
     position: absolute;
-    width: 150px;
+    width: 180px;
     top: 2px;
     left: 2px;
   }
@@ -522,7 +530,7 @@
     font-family: "Montserrat";
     font-size: 12px;
     position: absolute;
-    width: 150px;
+    width: 180px;
     top: 60px;
     left: 2px;
   }
