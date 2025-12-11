@@ -102,19 +102,21 @@
     matrix_links,
     mGroup,
     mrGroup,
-    allGroup;
+    allGroup,
+    timelineRef;
 
   // init
   let miserables;
   onMount(async () => {
     // load the data
-    [mend, actors] = await getCSV(["./mend_new.csv", "./actors_updated.csv"]);
+    [mend, actors] = await getCSV(["./mend_fix.csv", "./actors_updated.csv"]);
     clean_mend = mend.filter((d) => d.med_event_ID != "");
+
     filter_to_2324 = clean_mend.filter((d) => d.Year >= 2023);
     let russia = actors.find((d) => d.ActorName === "Russia")?.GLOPAD_ID;
 
     russia_present = filter_to_2324.filter((item) =>
-      item.third_party_id_GLOPAD?.split(";").includes(russia),
+      item.third_party_id_MEND?.split(";").includes(russia),
     );
 
     let m_mr_grouping = d3.groups(clean_mend, (d) => d.med_type);
@@ -128,7 +130,10 @@
     ];
 
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
-    let selected = russia_conflicts[5][1];
+    console.log(russia_conflicts);
+    
+    
+    let selected = russia_conflicts[4][1];
     current_data = selected;
 
     // trigger simulation
@@ -145,7 +150,7 @@
 
   // simulation function
   async function setupSimulation(selected) {
-    console.log(selected);
+    
     if (selected.length === 0) {
       return (nodes = []), (links = []);
     } else {
@@ -264,8 +269,6 @@
     simulation.alpha(0.3).restart();
   }
 
-  let timelineRef;
-
   function change_country(data) {
     medType = "All";
     cntry = data[0];
@@ -366,6 +369,7 @@
       {/each}
     </select>
   </div>
+
   <div class="network" bind:clientHeight={height} bind:clientWidth={width}>
     <svg bind:this={svgEl} {width} {height}>
       <g bind:this={gEl}>
@@ -433,17 +437,15 @@
       </g>
     </svg>
   </div>
-  <div class="timeline">
-    <Timeline
-      bind:this={timelineRef}
-      {width}
-      {margin}
-      {russia_present}
-      {allYearMonthPairs}
-      {cntry}
-      {medType}
-    />
-  </div>
+  <Timeline
+    bind:this={timelineRef}
+    {width}
+    {margin}
+    {russia_present}
+    {allYearMonthPairs}
+    {cntry}
+    {medType}
+  />
 </div>
 <div class="blog_text">
   <p>

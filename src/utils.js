@@ -23,6 +23,7 @@ export async function getGeo(paths) {
 }
 
 export function constructNodesAndLinks(data, actors) {
+
     const nodes = [];
     const links = [];
     const seenNodes = new Set();
@@ -35,9 +36,9 @@ export function constructNodesAndLinks(data, actors) {
     });
 
     data.forEach((d) => {
-        if (!d.third_party_id_GLOPAD) return;
+        if (!d.third_party_id_MEND) return;
 
-        const ids = d.third_party_id_GLOPAD.split(";").filter(Boolean);
+        const ids = d.third_party_id_MEND.split(";").filter(Boolean);
 
         // Create nodes
         ids.forEach((id) => {

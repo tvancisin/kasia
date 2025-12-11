@@ -8,8 +8,6 @@
     let brush;
     let brushGroup;
 
-    $: console.log(medType);
-
     export function clearBrush() {
         if (brush && brushGroup) {
             d3.select(brushGroup).call(brush.move, null);
@@ -82,7 +80,7 @@
             .brushX()
             .extent([
                 [margin.left, margin.top],
-                [width - margin.right + 15, height - margin.bottom],
+                [width - margin.right, height - margin.bottom],
             ])
             .on("brush end", (event) => {
                 if (event.selection) {
@@ -168,10 +166,9 @@
         selY.select(".domain").remove();
     }
 
-    $: console.log(cntry);
 </script>
 
-<div class="timeline" bind:clientHeight={height}>
+<div class="timeline" bind:clientWidth={width} bind:clientHeight={height}>
     <div class="timeline_legend">
         <div class="legend-item one">
             <span class="legend-circle" style="background-color: white;"></span>
@@ -226,6 +223,7 @@
         width: 100%;
         height: 20vh;
     }
+
     .timeline_legend {
         color: rgb(195, 195, 195);
         font-family: "Montserrat";
@@ -235,14 +233,14 @@
         left: 20px;
 
         display: flex;
-        flex-direction: column; /* vertical stacking */
-        gap: 6px; /* space between items */
+        flex-direction: column;
+        gap: 6px;
     }
 
     .legend-item {
-        display: flex; /* circle + text inline */
-        align-items: center; /* vertically center circle with text */
-        gap: 10px; /* space between circle and its label */
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .one {
