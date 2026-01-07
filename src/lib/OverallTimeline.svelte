@@ -2,6 +2,9 @@
     import * as d3 from "d3";
     export let filter_to_2324, width, height;
 
+
+
+    $: console.log(height);
     // group & sort events per month (your existing logic)
     $: eventsByMonth = (() => {
         const map = d3.group(

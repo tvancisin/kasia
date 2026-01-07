@@ -1,12 +1,20 @@
 <script>
   import * as d3 from "d3";
   import { onMount, tick } from "svelte";
-  import { getCSV, constructNodesAndLinks, getGeo } from "./utils";
+  import {
+    getCSV,
+    constructNodesAndLinks,
+    getGeo,
+    contentByCountry,
+    contentByPeriod,
+  } from "./utils";
   import Timeline from "./lib/Timeline.svelte";
   import OverallTimeline from "./lib/OverallTimeline.svelte";
   import Matrix from "./lib/Matrix.svelte";
   import { selectedYearsStore } from "./years";
 
+  let selected_country = "ag";
+  let selected_period = "am2023";
   // reactive subscription
   $: selectedPeriod = $selectedYearsStore;
 
@@ -131,8 +139,7 @@
 
     russia_conflicts = d3.groups(russia_present, (d) => d.conflict_country);
     console.log(russia_conflicts);
-    
-    
+
     let selected = russia_conflicts[4][1];
     current_data = selected;
 
@@ -150,7 +157,6 @@
 
   // simulation function
   async function setupSimulation(selected) {
-    
     if (selected.length === 0) {
       return (nodes = []), (links = []);
     } else {
@@ -310,18 +316,72 @@
       renderedLinks.some((l) => l.source.id === n.id || l.target.id === n.id),
     );
   }
+
+  $: console.log(height);
 </script>
 
 <h1>Russia in Peace Mediation</h1>
 <div class="blog_text">
   <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-    non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    MEND data has allowed us to track not only the activities of external
+    diplomatic interventions in conflict, but also how they interact with other
+    third parties. Understanding networks of third-party actors in conflicts is
+    crucial to gaining an insight into the kinds of alliances and partnerships
+    that are being forged towards conflict management and resolution and how
+    these operate across regions. For policymakers, this is an integral tool to
+    help devise strategic partnerships towards conflict mediation and resolution
+    of Middle Eastern and North African conflicts.
   </p>
+  <p>
+    Here, we map Russian intervention networks across Middle Eastern and North
+    African conflicts across 2023 and 2024. Using MEND data charting mediation
+    and mediation-related activities undertaken by third-party conflict actors,
+    Russian peace-making partnerships are tracked across conflicts involving
+    Israel, Syria, Yemen, Libya, Sudan, and Afghanistan. The intensity of
+    interactions with other third parties is revealed by the width of connecting
+    lines in the interactive diagrams and can be manipulated using the slider or
+    the timeline. Comparisons can also be made regarding the types of actors
+    with whom Russia collaborated across activity types:
+  </p>
+  <ul>
+    <li>
+      Mediation/shuttle mediation—when at least one external third party brokers
+      talks between at least one belligerent and other local actors either in
+      the same meeting or in quick succession
+    </li>
+    <br />
+    <li>
+      Mediation-related—where external a third party either coordinates with
+      other external actors, meets with only one local conflict actor, holds
+      consultations with non-belligerents, or is involved in a meeting related
+      to an implementation mechanism.
+    </li>
+  </ul>
+
+  <br />
+  <br />
+  <select id="country" bind:value={selected_country}>
+    <option value="">— choose —</option>
+    <option value="sd">Sudan</option>
+    <option value="ym">Yemen</option>
+    <option value="ag">Afghanistan</option>
+    <option value="is">Israel</option>
+    <option value="lb">Libya</option>
+    <option value="sy">Syria</option>
+  </select>
+
+  {#if selected_country}
+    <div class="content">
+      <p>
+        <strong>Activity Overview: </strong>
+        {contentByCountry[selected_country].activity}
+      </p>
+      <p>
+        <strong>Networks: </strong>
+        {contentByCountry[selected_country].networks}
+      </p>
+    </div>
+  {/if}
 </div>
 <div class="visualization">
   <div id="slider_container">
@@ -449,16 +509,51 @@
 </div>
 <div class="blog_text">
   <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-    non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    The years 2023 and 2024 saw an increase in violent conflict across the
+    Middle East and North Africa, especially in Gaza and Sudan. It was also
+    punctuated by the apparent end of the ongoing conflict in Syria not due to a
+    mediated, negotiated resolution, but rather the capitulation of the Assad
+    regime after a swift and decisive rebel offensive. What has the
+    international diplomatic response been towards these rapidly changing events
+    across Middle Eastern and North African conflicts? And where does Russia fit
+    in?
   </p>
+  <p>
+    The area chart below maps global diplomatic activities towards the conflicts
+    in the Occupied Palestinian Territories/Israel, Syria, Yemen, Libya, Sudan,
+    and Afghanistan. This includes both mediation and mediation-related events
+    (please see above text for a definition of these activity-types).
+  </p>
+  <p>
+    The area graph shows that global activity towards violent conflicts in the
+    MENA region had five-six large spikes across the two years, with
+    significantly increased efforts from August 2024 onwards. Generally, Russian
+    activity across this period remained steady without major spikes. However,
+    subtle patterns reveal that, much like the trends in global activity,
+    Russian diplomacy intensified slightly in October 2023, August 2024, and
+    October and November 2024.
+  </p>
+
+  <select id="periods" bind:value={selected_period}>
+    <option value="">— choose —</option>
+    <option value="am2023">April-May 2023</option>
+    <option value="on2023">October-November 2023</option>
+    <option value="jf2024">January-February 2024</option>
+    <option value="ap2024">April 2024</option>
+    <option value="ag2024">August 2024</option>
+    <option value="od2024">October-December 2024</option>
+  </select>
+
+  {#if selected_period}
+    <div class="content">
+      <p>
+        {contentByPeriod[selected_period].text}
+      </p>
+    </div>
+  {/if}
 </div>
 
-<div class="visualization">
+<div class="visualization2">
   {#if clean_mend}
     <OverallTimeline
       {filter_to_2324}
@@ -489,6 +584,12 @@
     position: relative;
     width: 100%;
     height: 100vh;
+  }
+
+  .visualization2 {
+    position: relative;
+    width: 100%;
+    height: 75vh;
   }
 
   .network {
