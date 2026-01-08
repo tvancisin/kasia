@@ -320,250 +320,266 @@
   $: console.log(height);
 </script>
 
-<h1>Russia in Peace Mediation</h1>
-<div class="blog_text">
-  <p>
-    MEND data has allowed us to track not only the activities of external
-    diplomatic interventions in conflict, but also how they interact with other
-    third parties. Understanding networks of third-party actors in conflicts is
-    crucial to gaining an insight into the kinds of alliances and partnerships
-    that are being forged towards conflict management and resolution and how
-    these operate across regions. For policymakers, this is an integral tool to
-    help devise strategic partnerships towards conflict mediation and resolution
-    of Middle Eastern and North African conflicts.
-  </p>
-  <p>
-    Here, we map Russian intervention networks across Middle Eastern and North
-    African conflicts across 2023 and 2024. Using MEND data charting mediation
-    and mediation-related activities undertaken by third-party conflict actors,
-    Russian peace-making partnerships are tracked across conflicts involving
-    Israel, Syria, Yemen, Libya, Sudan, and Afghanistan. The intensity of
-    interactions with other third parties is revealed by the width of connecting
-    lines in the interactive diagrams and can be manipulated using the slider or
-    the timeline. Comparisons can also be made regarding the types of actors
-    with whom Russia collaborated across activity types:
-  </p>
-  <ul>
-    <li>
-      Mediation/shuttle mediation—when at least one external third party brokers
-      talks between at least one belligerent and other local actors either in
-      the same meeting or in quick succession
-    </li>
+<main>
+  <h1>Russia in Peace Mediation</h1>
+  <h2 style="font-size: 22px;">
+    <a
+      href="https://research-portal.st-andrews.ac.uk/en/persons/kasia-houghton/"
+      target="_blank">Kasia Houghton</a
+    >
+  </h2>
+
+  <h2 style="font-size: 18px; margin-top: 10px;">
+    Web & Visualizations: <a href="https://tomasvancisin.co.uk/"
+      >Tomas Vancisin</a
+    >
+  </h2>
+  <div class="blog_text">
+    <p>
+      MEND data has allowed us to track not only the activities of external
+      diplomatic interventions in conflict, but also how they interact with
+      other third parties. Understanding networks of third-party actors in
+      conflicts is crucial to gaining an insight into the kinds of alliances and
+      partnerships that are being forged towards conflict management and
+      resolution and how these operate across regions. For policymakers, this is
+      an integral tool to help devise strategic partnerships towards conflict
+      mediation and resolution of Middle Eastern and North African conflicts.
+    </p>
+    <p>
+      Here, we map Russian intervention networks across Middle Eastern and North
+      African conflicts across 2023 and 2024. Using MEND data charting mediation
+      and mediation-related activities undertaken by third-party conflict
+      actors, Russian peace-making partnerships are tracked across conflicts
+      involving Israel, Syria, Yemen, Libya, Sudan, and Afghanistan. The
+      intensity of interactions with other third parties is revealed by the
+      width of connecting lines in the interactive diagrams and can be
+      manipulated using the slider or the timeline. Comparisons can also be made
+      regarding the types of actors with whom Russia collaborated across
+      activity types:
+    </p>
+    <ul>
+      <li>
+        Mediation/shuttle mediation—when at least one external third party
+        brokers talks between at least one belligerent and other local actors
+        either in the same meeting or in quick succession
+      </li>
+      <br />
+      <li>
+        Mediation-related—where external a third party either coordinates with
+        other external actors, meets with only one local conflict actor, holds
+        consultations with non-belligerents, or is involved in a meeting related
+        to an implementation mechanism.
+      </li>
+    </ul>
+
     <br />
-    <li>
-      Mediation-related—where external a third party either coordinates with
-      other external actors, meets with only one local conflict actor, holds
-      consultations with non-belligerents, or is involved in a meeting related
-      to an implementation mechanism.
-    </li>
-  </ul>
+    <br />
+    <select id="country" bind:value={selected_country}>
+      <option value="">— choose —</option>
+      <option value="sd">Sudan</option>
+      <option value="ym">Yemen</option>
+      <option value="ag">Afghanistan</option>
+      <option value="is">Israel</option>
+      <option value="lb">Libya</option>
+      <option value="sy">Syria</option>
+    </select>
 
-  <br />
-  <br />
-  <select id="country" bind:value={selected_country}>
-    <option value="">— choose —</option>
-    <option value="sd">Sudan</option>
-    <option value="ym">Yemen</option>
-    <option value="ag">Afghanistan</option>
-    <option value="is">Israel</option>
-    <option value="lb">Libya</option>
-    <option value="sy">Syria</option>
-  </select>
-
-  {#if selected_country}
-    <div class="content">
-      <p>
-        <strong>Activity Overview: </strong>
-        {contentByCountry[selected_country].activity}
-      </p>
-      <p>
-        <strong>Networks: </strong>
-        {contentByCountry[selected_country].networks}
-      </p>
+    {#if selected_country}
+      <div class="content">
+        <p>
+          <strong>Activity Overview: </strong>
+          {contentByCountry[selected_country].activity}
+        </p>
+        <p>
+          <strong>Networks: </strong>
+          {contentByCountry[selected_country].networks}
+        </p>
+      </div>
+    {/if}
+  </div>
+  <div class="visualization">
+    <div id="slider_container">
+      <input
+        id="connectionSlider"
+        type="range"
+        min="1"
+        max={maxValue}
+        step="1"
+        bind:value={minConnections}
+      />
+      <label
+        for="connectionSlider"
+        style="color: rgb(195, 195, 195); font-size: 12px; margin-right: 2px;"
+      >
+        At least {minConnections}
+        {minConnections > 1 ? "connections" : "connection"}
+      </label>
     </div>
-  {/if}
-</div>
-<div class="visualization">
-  <div id="slider_container">
-    <input
-      id="connectionSlider"
-      type="range"
-      min="1"
-      max={maxValue}
-      step="1"
-      bind:value={minConnections}
-    />
-    <label
-      for="connectionSlider"
-      style="color: rgb(195, 195, 195); font-size: 12px; margin-right: 2px;"
-    >
-      At least {minConnections}
-      {minConnections > 1 ? "connections" : "connection"}
-    </label>
-  </div>
 
-  <div id="dropdown_container">
-    Select Country
-    <select
-      bind:value={cntry}
-      on:change={() => {
-        const selected = russia_conflicts.find((r) => r[0] === cntry);
-        if (selected) change_country(selected);
-      }}
-    >
-      {#each russia_conflicts as r}
-        <option value={r[0]}>{r[0]}</option>
-      {/each}
-    </select>
-  </div>
-
-  <!-- MEDIATION TYPE DROPDOWN -->
-  <div id="dropdown_container_2">
-    Select Activity
-    <select
-      bind:value={medType}
-      on:change={() => change_mediation_type(medType)}
-    >
-      {#each mediationOptions as m}
-        <option value={m[0]}>{getOptionText(m[0])}</option>
-      {/each}
-    </select>
-  </div>
-
-  <div class="network" bind:clientHeight={height} bind:clientWidth={width}>
-    <svg bind:this={svgEl} {width} {height}>
-      <g bind:this={gEl}>
-        {#each renderedLinks as l (l.source.id + "-" + l.target.id)}
-          <line
-            stroke-opacity={opacityScale(l.value)}
-            stroke-width={widthScale(l.value)}
-            x1={l.source.x}
-            y1={l.source.y}
-            x2={l.target.x}
-            y2={l.target.y}
-            stroke="white"
-          />
+    <div id="dropdown_container">
+      Select Country
+      <select
+        bind:value={cntry}
+        on:change={() => {
+          const selected = russia_conflicts.find((r) => r[0] === cntry);
+          if (selected) change_country(selected);
+        }}
+      >
+        {#each russia_conflicts as r}
+          <option value={r[0]}>{r[0]}</option>
         {/each}
+      </select>
+    </div>
 
-        {#each renderedNodes as node, i (node.id)}
-          <g>
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={6}
-              fill="#001C23"
-              fill-opacity="0.5"
+    <!-- MEDIATION TYPE DROPDOWN -->
+    <div id="dropdown_container_2">
+      Select Activity
+      <select
+        bind:value={medType}
+        on:change={() => change_mediation_type(medType)}
+      >
+        {#each mediationOptions as m}
+          <option value={m[0]}>{getOptionText(m[0])}</option>
+        {/each}
+      </select>
+    </div>
+
+    <div class="network" bind:clientHeight={height} bind:clientWidth={width}>
+      <svg bind:this={svgEl} {width} {height}>
+        <g bind:this={gEl}>
+          {#each renderedLinks as l (l.source.id + "-" + l.target.id)}
+            <line
+              stroke-opacity={opacityScale(l.value)}
+              stroke-width={widthScale(l.value)}
+              x1={l.source.x}
+              y1={l.source.y}
+              x2={l.target.x}
+              y2={l.target.y}
+              stroke="white"
             />
-            <circle
-              bind:this={circleRefs[i]}
-              cx={node.x}
-              cy={node.y}
-              r="4"
-              fill="white"
-              on:mousedown|preventDefault
-            >
-              <title>{node.id}</title>
-            </circle>
+          {/each}
 
-            {#if textBBoxes[i]}
-              <rect
-                x={node.x - textBBoxes[i].width / 2 - 4}
-                y={node.y + 15 - textBBoxes[i].height + 4}
-                width={textBBoxes[i].width + 8}
-                height={textBBoxes[i].height}
+          {#each renderedNodes as node, i (node.id)}
+            <g>
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={6}
                 fill="#001C23"
-                opacity="0.5"
-                rx="1"
-                ry="1"
+                fill-opacity="0.5"
               />
-            {/if}
+              <circle
+                bind:this={circleRefs[i]}
+                cx={node.x}
+                cy={node.y}
+                r="4"
+                fill="white"
+                on:mousedown|preventDefault
+              >
+                <title>{node.id}</title>
+              </circle>
 
-            <text
-              bind:this={textRefs[i]}
-              x={node.x}
-              y={node.y + 15}
-              text-anchor="middle"
-              fill="white"
-              stroke="black"
-              stroke-width="2"
-              paint-order="stroke fill"
-              font-size="10"
-              font-family="Montserrat"
-            >
-              {node.name}
-            </text>
-          </g>
-        {/each}
-      </g>
-    </svg>
-  </div>
-  <Timeline
-    bind:this={timelineRef}
-    {width}
-    {margin}
-    {russia_present}
-    {allYearMonthPairs}
-    {cntry}
-    {medType}
-  />
-</div>
-<div class="blog_text">
-  <p>
-    The years 2023 and 2024 saw an increase in violent conflict across the
-    Middle East and North Africa, especially in Gaza and Sudan. It was also
-    punctuated by the apparent end of the ongoing conflict in Syria not due to a
-    mediated, negotiated resolution, but rather the capitulation of the Assad
-    regime after a swift and decisive rebel offensive. What has the
-    international diplomatic response been towards these rapidly changing events
-    across Middle Eastern and North African conflicts? And where does Russia fit
-    in?
-  </p>
-  <p>
-    The area chart below maps global diplomatic activities towards the conflicts
-    in the Occupied Palestinian Territories/Israel, Syria, Yemen, Libya, Sudan,
-    and Afghanistan. This includes both mediation and mediation-related events
-    (please see above text for a definition of these activity-types).
-  </p>
-  <p>
-    The area graph shows that global activity towards violent conflicts in the
-    MENA region had five-six large spikes across the two years, with
-    significantly increased efforts from August 2024 onwards. Generally, Russian
-    activity across this period remained steady without major spikes. However,
-    subtle patterns reveal that, much like the trends in global activity,
-    Russian diplomacy intensified slightly in October 2023, August 2024, and
-    October and November 2024.
-  </p>
+              {#if textBBoxes[i]}
+                <rect
+                  x={node.x - textBBoxes[i].width / 2 - 4}
+                  y={node.y + 15 - textBBoxes[i].height + 4}
+                  width={textBBoxes[i].width + 8}
+                  height={textBBoxes[i].height}
+                  fill="#001C23"
+                  opacity="0.5"
+                  rx="1"
+                  ry="1"
+                />
+              {/if}
 
-  <select id="periods" bind:value={selected_period}>
-    <option value="">— choose —</option>
-    <option value="am2023">April-May 2023</option>
-    <option value="on2023">October-November 2023</option>
-    <option value="jf2024">January-February 2024</option>
-    <option value="ap2024">April 2024</option>
-    <option value="ag2024">August 2024</option>
-    <option value="od2024">October-December 2024</option>
-  </select>
-
-  {#if selected_period}
-    <div class="content">
-      <p>
-        {contentByPeriod[selected_period].text}
-      </p>
+              <text
+                bind:this={textRefs[i]}
+                x={node.x}
+                y={node.y + 15}
+                text-anchor="middle"
+                fill="white"
+                stroke="black"
+                stroke-width="2"
+                paint-order="stroke fill"
+                font-size="10"
+                font-family="Montserrat"
+              >
+                {node.name}
+              </text>
+            </g>
+          {/each}
+        </g>
+      </svg>
     </div>
-  {/if}
-</div>
-
-<div class="visualization2">
-  {#if clean_mend}
-    <OverallTimeline
-      {filter_to_2324}
-      {russia_present}
+    <Timeline
+      bind:this={timelineRef}
       {width}
-      {height}
       {margin}
+      {russia_present}
+      {allYearMonthPairs}
+      {cntry}
+      {medType}
     />
-  {/if}
-</div>
+  </div>
+  <div class="blog_text">
+    <p>
+      The years 2023 and 2024 saw an increase in violent conflict across the
+      Middle East and North Africa, especially in Gaza and Sudan. It was also
+      punctuated by the apparent end of the ongoing conflict in Syria not due to
+      a mediated, negotiated resolution, but rather the capitulation of the
+      Assad regime after a swift and decisive rebel offensive. What has the
+      international diplomatic response been towards these rapidly changing
+      events across Middle Eastern and North African conflicts? And where does
+      Russia fit in?
+    </p>
+    <p>
+      The area chart below maps global diplomatic activities towards the
+      conflicts in the Occupied Palestinian Territories/Israel, Syria, Yemen,
+      Libya, Sudan, and Afghanistan. This includes both mediation and
+      mediation-related events (please see above text for a definition of these
+      activity-types).
+    </p>
+    <p>
+      The area graph shows that global activity towards violent conflicts in the
+      MENA region had five-six large spikes across the two years, with
+      significantly increased efforts from August 2024 onwards. Generally,
+      Russian activity across this period remained steady without major spikes.
+      However, subtle patterns reveal that, much like the trends in global
+      activity, Russian diplomacy intensified slightly in October 2023, August
+      2024, and October and November 2024.
+    </p>
+
+    <select id="periods" bind:value={selected_period}>
+      <option value="">— choose —</option>
+      <option value="am2023">April-May 2023</option>
+      <option value="on2023">October-November 2023</option>
+      <option value="jf2024">January-February 2024</option>
+      <option value="ap2024">April 2024</option>
+      <option value="ag2024">August 2024</option>
+      <option value="od2024">October-December 2024</option>
+    </select>
+
+    {#if selected_period}
+      <div class="content">
+        <p>
+          {contentByPeriod[selected_period].text}
+        </p>
+      </div>
+    {/if}
+  </div>
+
+  <div class="visualization2">
+    {#if clean_mend}
+      <OverallTimeline
+        {filter_to_2324}
+        {russia_present}
+        {width}
+        {height}
+        {margin}
+      />
+    {/if}
+  </div>
+</main>
 
 <!-- <div class="visualization">
   {#if matrix_nodes && matrix_links && miserables}
@@ -572,12 +588,31 @@
 </div> -->
 
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    color: rgb(246, 246, 234);
+    font-family: "Montserrat";
+  }
+
+  a {
+    color: steelblue;
+  }
+
   h1 {
     width: 80%;
     margin: 50px auto;
     text-align: center;
-    color: white;
-    font-family: "Montserrat", sans-serif;
+  }
+
+  h2 {
+    width: 80%;
+    margin: 5px auto;
+    text-align: center;
+    font-size: 20px;
   }
 
   .visualization {
