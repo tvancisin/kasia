@@ -13,7 +13,7 @@
   import Matrix from "./lib/Matrix.svelte";
   import { selectedYearsStore } from "./years";
 
-  let selected_country = "ag";
+  let selected_country = "sd";
   let selected_period = "am2023";
   // reactive subscription
   $: selectedPeriod = $selectedYearsStore;
@@ -276,6 +276,7 @@
   }
 
   function change_country(data) {
+    console.log(data);
     medType = "All";
     cntry = data[0];
     current_data = data[1];
@@ -317,7 +318,13 @@
     );
   }
 
-  $: console.log(height);
+  function handleCountryChange(event) {
+    const countryName = event.target.selectedOptions[0].text;
+    if (countryName !== "— choose —") {
+      const selected = russia_conflicts.find((r) => r[0] === countryName);
+      change_country(selected);
+    }
+  }
 </script>
 
 <main>
@@ -374,7 +381,11 @@
 
     <br />
     <br />
-    <select id="country" bind:value={selected_country}>
+    <select
+      id="country"
+      bind:value={selected_country}
+      on:change={handleCountryChange}
+    >
       <option value="">— choose —</option>
       <option value="sd">Sudan</option>
       <option value="ym">Yemen</option>

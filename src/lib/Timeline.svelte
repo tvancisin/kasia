@@ -174,6 +174,13 @@
             <span class="legend-circle" style="background-color: white;"></span>
             Mediation Event
         </div>
+        <div class="legend-item one">
+            <span
+                class="legend-circle"
+                style="background-color: yellow; "
+            ></span>
+            Selected Country
+        </div>
         <div class="legend-item">
             <span
                 class="legend-circle"
@@ -252,7 +259,7 @@
         height: 8px;
         border-radius: 50%;
         flex-shrink: 0;
-        opacity: 0.5;
+        opacity: 0.7;
     }
 
     :global(.selection) {
