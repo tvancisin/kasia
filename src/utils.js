@@ -93,7 +93,7 @@ export const contentByCountry = {
     ag: {
         name: "Afghanistan",
         activity: "Moscow engaged diplomatically with the conflict in Afghanistan only nine times across 2023-2024. Of these nine events, only one was an instance of shuttle mediation, during which Russia met with the National Resistance Front. Russia was not involved in any peace agreements during this period.",
-        networks: "Interestingly, despite the relatively few recorded events in which Russia played a peace-making role, its involvement in peace-making and peacebuilding in Afghanistan is far reaching. This is not only due to its leadership of the Moscow Format, one of the main dialogue platforms for peace in Afghanistan, but also because of the number of partners within its peace-making network towards this conflict. With just under 30 partners, Russia cooperated with partners across Eastern, Southern, Southeastern and Central Asia, the Middle East, Europe, the United States, and various international governmental organisations such as the European Union, United Nations, Organisation of Islamic Cooperation, and the Shanghai Cooperation Organization. Moscow most often collaborated with China, Pakistan and Iran, with these actors featuring in partnerships with Russia between six and seven times over the two years.  Also of note is that despite far-reaching partnerships, Russian mediation in Afghanistan was conducted without partners."
+        networks: "Interestingly, despite the relatively few recorded events in which Russia played a peace-making role, its involvement in peace-making and peacebuilding in Afghanistan is far reaching. This is not only due to its leadership of the Moscow Format, one of the main dialogue platforms for peace in Afghanistan, but also because of the number of partners within its peace-making network towards this conflict. With just under 30 partners, Russia cooperated with partners across Eastern, Southern, Southeastern and Central Asia, the Middle East, Europe, the United States, and various international governmental organisations such as the European Union, United Nations, Organisation of Islamic Cooperation, and the Shanghai Cooperation Organization. Moscow most often collaborated with China, Pakistan and Iran, with these actors featuring in partnerships with Russia between six and seven times over the two years.  Also of note is that despite its far-reaching partnerships during mediation-related activities, Russian mediation in Afghanistan was conducted without partners."
     },
     is: {
         name: "Israel",
@@ -108,7 +108,7 @@ export const contentByCountry = {
     sy: {
         name: "Syria",
         activity: "MEND recorded 41 instances of Russian mediation and mediation-related activities towards Syria between January 2023 and December 2024. Of these events, 14 were considered mediation events, while the remaining 27 were mediation-related activities. Russia was not involved in any peace agreements during this period.",
-        networks: "Over Syria, Russia collaborated predominantly with regional actors, with the exception of the United States, United Kingdom, and the UN Secretary General’s Special Envoy to Syria. It is unsurprising that Russia cooperated most intensively with the Turkey and Iran (Islamic Republic of), the other members of the Astana Trio that headed an alternative peace process to that led by the UN. Across this period, Russia interacted with Turkey 15 times and Iran 16 times. Russia collaborated with regional states and the UNSG’s Special Envoy to Syria during mediation events and most intensively cooperated with Iran. Russia collaborated with Iran nine times, with cooperation with Turkey (Russia’s second most significant conflict resolution partner in Syria) only three times."
+        networks: "Over Syria, Russia collaborated predominantly with regional actors, with the exception of the United States, United Kingdom, and the UN Secretary General’s Special Envoy to Syria. It is unsurprising that Russia cooperated most intensively with Turkey and Iran (Islamic Republic of), the other members of the Astana Trio that headed an alternative peace process to that led by the UN. Across this period, Russia interacted with Turkey 15 times and Iran 16 times. Russia collaborated with regional states and the UNSG’s Special Envoy to Syria during mediation events and most intensively cooperated with Iran. Russia collaborated with Iran nine times and cooperated with Turkey (Russia’s second most significant conflict resolution partner in Syria) only three times."
     },
 };
 
@@ -116,7 +116,7 @@ export const contentByCountry = {
 export const contentByPeriod = {
     am2023: {
         name: "April-May 2023",
-        text: "Global activity increased towards the conflict in Sudan in response to the outbreak of the most recent major civil war between the Sudanese Armed Forces and the Rapid Support Forces. Interestingly, Russia did not contribute to any of these recorded mediation or mediation-related events in these months."
+        text: "Global activity increased towards the conflict in Sudan in response to the outbreak of the most recent major civil war between the Sudanese Armed Forces and the Rapid Support Forces. Interestingly, Russia did not contribute to any recorded mediation or mediation-related events towards to the conflict in Sudan in these months."
     },
     on2023: {
         name: "October-November 2023",
@@ -132,7 +132,7 @@ export const contentByPeriod = {
     },
     ag2024: {
         name: "August 2024",
-        text: "Increased activity in August was directed towards conflicts in which Israel is a main protagonist. The sharp incline in global and Russian mediation and mediation-related events coincided with Israel’s large-scale offensive on the West Bank, described as “Operation Summer Camps”. In the context of the ongoing war on Gaza and aggression towards regional states, this exacerbated regional tensions. This activity spike from August until the end of the year, also coincided with the declaration of famine in Sudan and deadly floods; fighting intensified and humanitarian access was blocked in many regions. "
+        text: "Increased activity in August was directed towards conflicts in which Israel is a main belligerent. The sharp incline in global and Russian mediation and mediation-related events coincided with Israel’s large-scale offensive on the West Bank, described as “Operation Summer Camps”. In the context of the ongoing war on Gaza and aggression towards regional states, this exacerbated regional tensions. This activity spike from August until the end of the year, also coincided with the declaration of famine in Sudan and deadly floods; fighting intensified and humanitarian access was blocked in many regions. "
     },
     od2024: {
         name: "October-December 2024",

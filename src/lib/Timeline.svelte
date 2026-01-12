@@ -181,13 +181,6 @@
             ></span>
             Selected Country
         </div>
-        <div class="legend-item">
-            <span
-                class="legend-circle"
-                style="background-color: white; width: 15px; height: 15px"
-            ></span>
-            Agreement Signed
-        </div>
     </div>
     <svg {height} {width} bind:this={svg}>
         <!-- brushed boundary lines + labels -->

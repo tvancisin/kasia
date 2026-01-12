@@ -364,18 +364,19 @@
       regarding the types of actors with whom Russia collaborated across
       activity types:
     </p>
+
     <ul>
       <li>
-        Mediation/shuttle mediation—when at least one external third party
-        brokers talks between at least one belligerent and other local actors
-        either in the same meeting or in quick succession
+        <strong>Mediation/shuttle mediation</strong>: when at least one external
+        third party brokers talks between at least one belligerent and other
+        local actors either in the same meeting or in quick succession
       </li>
       <br />
       <li>
-        Mediation-related—where external a third party either coordinates with
-        other external actors, meets with only one local conflict actor, holds
-        consultations with non-belligerents, or is involved in a meeting related
-        to an implementation mechanism.
+        <strong>Mediation-related</strong>: where at least one external third
+        party either coordinates with other external actors, meets with only one
+        local conflict actor, holds consultations with non-belligerents, or is
+        involved in a meeting related to an implementation mechanism.
       </li>
     </ul>
 
@@ -590,6 +591,18 @@
       />
     {/if}
   </div>
+
+  <div class="blog_text" style="text-align: left;">
+    <h2 style="font-size: 16px;">Data Sources</h2>
+
+    <p style="font-size: 14px;">
+      Peter, Mateja; Badanjak, Sanja; D'Amico, Elisa; Houghton, Kasia, 2025,
+      "Mediation Event and Negotiators Database (MEND)", <a
+        href="https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/PYRHS6"
+        target="_blank">doi.org/10.7910/DVN/PYRHS6</a
+      >, Harvard Dataverse, V2.
+    </p>
+  </div>
 </main>
 
 <!-- <div class="visualization">
@@ -605,7 +618,7 @@
     padding: 20px;
     max-width: 100%;
     box-sizing: border-box;
-    color: rgb(246, 246, 234);
+    color: rgb(255, 255, 255);
     font-family: "Montserrat";
   }
 
