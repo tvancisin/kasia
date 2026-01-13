@@ -116,7 +116,7 @@ export const contentByCountry = {
 export const contentByPeriod = {
     am2023: {
         name: "April-May 2023",
-        text: "Global activity increased towards the conflict in Sudan in response to the outbreak of the most recent major civil war between the Sudanese Armed Forces and the Rapid Support Forces. Interestingly, Russia did not contribute to any recorded mediation or mediation-related events towards to the conflict in Sudan in these months."
+        text: "Global activity increased towards the conflict in Sudan in response to the outbreak of the most recent major civil war between the Sudanese Armed Forces and the Rapid Support Forces. Interestingly, Russia did not contribute to any recorded mediation or mediation-related events towards the conflict in Sudan during these months."
     },
     on2023: {
         name: "October-November 2023",
