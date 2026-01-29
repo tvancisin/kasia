@@ -328,59 +328,53 @@
 </script>
 
 <main>
-  <h1>Russia in Peace Mediation</h1>
-  <h2 style="font-size: 22px;">
-    <a
-      href="https://research-portal.st-andrews.ac.uk/en/persons/kasia-houghton/"
-      target="_blank">Kasia Houghton</a
-    >
-  </h2>
-
-  <h2 style="font-size: 18px; margin-top: 10px;">
-    Web & Visualizations: <a href="https://tomasvancisin.co.uk/"
-      >Tomas Vancisin</a
-    >
-  </h2>
+  <h1>Russia as a Mediator</h1>
   <div class="blog_text">
     <p>
       MEND data has allowed us to track not only the activities of external
       diplomatic interventions in conflict, but also how they interact with
       other third parties. Understanding networks of third-party actors in
       conflicts is crucial to gaining an insight into the kinds of alliances and
-      partnerships that are being forged towards conflict management and
-      resolution and how these operate across regions. For policymakers, this is
-      an integral tool to help devise strategic partnerships towards conflict
-      mediation and resolution of Middle Eastern and North African conflicts.
+      partnerships that are being forged towards mediation and mediation-related
+      activities and how these operate across regions. For policymakers, this is
+      an integral tool for understanding how actors devise strategic
+      partnerships towards mediation and diplomacy towards Middle Eastern and
+      North African conflicts over time.
     </p>
+    <h2>Russian Actor Networks</h2>
     <p>
       Here, we map Russian intervention networks across Middle Eastern and North
       African conflicts across 2023 and 2024. Using MEND data charting mediation
       and mediation-related activities undertaken by third-party conflict
-      actors, Russian peace-making partnerships are tracked across conflicts
-      involving Israel, Syria, Yemen, Libya, Sudan, and Afghanistan. The
-      intensity of interactions with other third parties is revealed by the
+      actors, Russian conflict management partnerships are tracked across
+      conflicts involving Israel, Syria, Yemen, Libya, Sudan, and Afghanistan.
+      The intensity of interactions with other third parties is revealed by the
       width of connecting lines in the interactive diagrams and can be
-      manipulated using the slider or the timeline. Comparisons can also be made
-      regarding the types of actors with whom Russia collaborated across
-      activity types:
+      manipulated using the slider or the interactive timeline in the following
+      visualisation. Comparisons can also be made regarding the types of actors
+      with whom Russia collaborated across activity types:
     </p>
 
     <ul>
       <li>
-        <strong>Mediation/shuttle mediation</strong>: when at least one external
-        third party brokers talks between at least one belligerent and other
-        local actors either in the same meeting or in quick succession
+        <strong>Mediation events</strong>: non-coercive facilitation of
+        communication or negotiation between disputing parties to help them
+        reach a mutually acceptable agreement or resolution to their conflict by
+        an external third-party. Mediation always involves at least two (local)
+        conflict stakeholders, at least one of them needing to be a belligerent.
       </li>
       <br />
       <li>
-        <strong>Mediation-related</strong>: where at least one external third
-        party either coordinates with other external actors, meets with only one
-        local conflict actor, holds consultations with non-belligerents, or is
-        involved in a meeting related to an implementation mechanism.
+        <strong>Mediation-related events</strong>: non-coercive measures to
+        facilitate the mediation. These measures are aimed at (1) encouraging a
+        conflict party or parties to come to/continue with the negotiation; (2)
+        expanding the range of actors directly or indirectly included in the
+        mediation; (3) coordinating among third parties; (4) monitoring and
+        advising on implementation as part of formal follow-up mechanisms.
       </li>
     </ul>
 
-    <br />
+    <!-- <br />
     <br />
     <select
       id="country"
@@ -407,7 +401,7 @@
           {contentByCountry[selected_country].networks}
         </p>
       </div>
-    {/if}
+    {/if} -->
   </div>
   <div class="visualization">
     <div id="slider_container">
@@ -534,6 +528,7 @@
     />
   </div>
   <div class="blog_text">
+    <h2>How Active is Russia?</h2>
     <p>
       The years 2023 and 2024 saw an increase in violent conflict across the
       Middle East and North Africa, especially in Gaza and Sudan. It was also
@@ -558,10 +553,11 @@
       Russian activity across this period remained steady without major spikes.
       However, subtle patterns reveal that, much like the trends in global
       activity, Russian diplomacy intensified slightly in October 2023, August
-      2024, and October and November 2024.
+      2024, and October and November 2024 in response to changes in conflict
+      dynamics in Syria and the Occupied Palestinian Territories.
     </p>
 
-    <select id="periods" bind:value={selected_period}>
+    <!-- <select id="periods" bind:value={selected_period}>
       <option value="">— choose —</option>
       <option value="am2023">April-May 2023</option>
       <option value="on2023">October-November 2023</option>
@@ -577,7 +573,7 @@
           {contentByPeriod[selected_period].text}
         </p>
       </div>
-    {/if}
+    {/if} -->
   </div>
 
   <div class="visualization2">
@@ -592,17 +588,25 @@
     {/if}
   </div>
 
-  <div class="blog_text" style="text-align: left;">
-    <h2 style="font-size: 16px;">Data Sources</h2>
-
-    <p style="font-size: 14px;">
-      Peter, Mateja; Badanjak, Sanja; D'Amico, Elisa; Houghton, Kasia, 2025,
-      "Mediation Event and Negotiators Database (MEND)", <a
-        href="https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/PYRHS6"
-        target="_blank">doi.org/10.7910/DVN/PYRHS6</a
-      >, Harvard Dataverse, V2.
-    </p>
-  </div>
+  <h2 style="font-size: 16px;">
+    Text: <a
+      href="https://research-portal.st-andrews.ac.uk/en/persons/kasia-houghton/"
+      target="_blank">Kasia Houghton</a
+    >
+  </h2>
+  <h2 style="font-size: 16px; font-weight: normal;">
+    <strong>Data</strong>: Peter, Mateja; Badanjak, Sanja; D'Amico, Elisa;
+    Houghton, Kasia, 2025, "Mediation Event and Negotiators Database (MEND)",
+    <a
+      href="https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/PYRHS6"
+      target="_blank">doi.org/10.7910/DVN/PYRHS6</a
+    >, Harvard Dataverse, V2.
+  </h2>
+  <h2 style="font-size: 16px;">
+    Web & Visualizations: <a href="https://tomasvancisin.co.uk/" target="_blank"
+      >Tomas Vancisin</a
+    >
+  </h2>
 </main>
 
 <!-- <div class="visualization">
@@ -628,11 +632,12 @@
 
   h1 {
     width: 80%;
-    margin: 50px auto;
+    margin: 40px auto;
+    margin-bottom: 0px;
     text-align: center;
   }
 
-  h2 {
+  :global(h2) {
     width: 80%;
     margin: 5px auto;
     text-align: center;
